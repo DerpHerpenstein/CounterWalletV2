@@ -1,0 +1,57 @@
+import "./bitcoinjs-lib.min.js"
+import Buffer from "./buffer.min.js"
+
+window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
+  try {
+    // Parse raw hex transaction
+    console.log(bitcoin.default);
+    const tx = bitcoin.Transaction.fromHex(rawHex);
+    const psbt = new bitcoin.Psbt();
+
+    // Add inputs to PSBT
+    tx.ins.forEach((input, index) => {
+      const inputData = {
+        hash: Buffer.from(input.hash).reverse().toString('hex'), // Reverse for correct endianness
+        index: input.index,
+        sequence: input.sequence,
+      };
+
+      // Check script type
+      console.log(bitcoin.payments);
+      const prevOutScript = bitcoin.address.toOutputScript(userAddress);
+
+      const isSegWit = userAddress.includes("bc1q");
+      const isTaproot = userAddress.includes("bc1p");
+      
+
+      if (isSegWit || isTaproot) {
+        // SegWit or Taproot: Add witness UTXO (requires amount and scriptPubKey)
+        inputData.witnessUtxo = {
+          script: prevOutScript, // Replace with actual scriptPubKey from UTXO
+          value: utxoValues[index],
+        };
+        if (input.witness && input.witness.length > 0) {
+          inputData.witness = input.witness;
+        }
+      } else {
+        // Legacy: Add non-witness UTXO (full previous transaction)
+        inputData.nonWitnessUtxo = Buffer.from(previousTxHex[index]); // Replace with actual previous tx hex
+      }
+
+      psbt.addInput(inputData);
+    });
+
+    // Add outputs to PSBT
+    tx.outs.forEach((output) => {
+      psbt.addOutput({
+        script: output.script,
+        value: output.value,
+      });
+    });
+
+    // Serialize PSBT to base64
+    return psbt.toBase64();
+  } catch (error) {
+    return `Error: ${error.message}`;
+  }
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counterparty TX Helper</title>
+    <script src="./scripts/tailwindcss.js"></script>
+    <link rel="stylesheet" href="./styles/fontawesome.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles/style.css">
+    <script type="module" src="./wallets/uniSatconnect.js"></script>
+    <script type="module" src="./api/CounterpartyV2.js"></script>
+    <script type="module" src="./scripts/bitcoinjs-lib.min.js"></script>
+    <script type="module" src="./scripts/rawhextopsbt.js"></script> <!-- bitcoinjs-lib: 6.1.7 -->
+    <script type="module" src="./scripts/buffer.min.js"></script> <!--buffer-polyfill: 6.0.3-->
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-card border-b border-border-color py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
+                    <i class="fas fa-coins text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold">Counterparty<span class="text-accent-blue">TX</span> Helper</h1>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button id="wallet-connect-btn" class="wallet-connect-btn px-4 py-2 rounded-lg flex items-center space-x-2">
+                    <i class="fas fa-wallet text-success"></i>
+                    <span id="wallet-connect-text">Connect Wallet</span>
+                </button>
+                <div class="w-10 h-10 rounded-full bg-card-bg border border-border-color flex items-center justify-center">
+                    <i class="fas fa-user text-text-secondary"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex flex-1">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-dark-bg border-r border-border-color p-6 hidden md:block">
+            <div class="mt-8">
+                <h2 class="text-text-secondary text-sm uppercase tracking-wider mb-4">Quick Actions</h2>
+                <div class="space-y-3">
+                    <button class="tx-card w-full p-2 rounded-lg hover:bg-card-bg transition flex items-center space-x-3 hidden" data-type="balances">
+                        <i class="fas fa-balance-scale text-accent-teal"></i>
+                        <span>View Balances</span>
+                    </button>
+                    <button class="tx-card w-full p-2 rounded-lg hover:bg-card-bg transition flex items-center space-x-3" data-type="recent">
+                        <i class="fas fa-history text-accent-purple"></i>
+                        <span>Recent Issuances</span>
+                    </button>
+                    <button class="tx-card w-full p-2 rounded-lg hover:bg-card-bg transition flex items-center space-x-3" data-type="myassets">
+                        <i class="fas fa-history text-accent-purple"></i>
+                        <span>My Assets</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mb-8">
+                <h2 class="text-text-secondary text-sm uppercase tracking-wider mb-4">Transaction Types</h2>
+                <div class="space-y-2">
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active hidden" data-type="broadcast">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-tower-broadcast"></i>
+                        </div>
+                        <span>Broadcast</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active" data-type="issuance">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <span>Create Asset</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active" data-type="fairminter">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <span>Create Fairminter</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active" data-type="fairmint">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <span>Mint Fairmint</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active hidden" data-type="send">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                        <span>Send</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active hidden" data-type="sweep">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-broom"></i>
+                        </div>
+                        <span>Sweep</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg active" data-type="mpma">
+                        <div class="transaction-icon send-icon">
+                            <i class="fas fa-plane"></i>
+                        </div>
+                        <span>MPMA</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="destroy">
+                        <div class="transaction-icon destroy-icon">
+                            <i class="fas fa-burn"></i>
+                        </div>
+                        <span>Destroy Asset</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="order">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-money-check"></i>
+                        </div>
+                        <span>Create Order</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg" data-type="cancel">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <span>Cancel Order</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="dispenser">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                        </div>
+                        <span>Dispenser Create</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg" data-type="dispense">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-money-bill"></i>
+                        </div>
+                        <span>Dispenser Buy</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="dividend">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <span>Issue Dividend</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="attach">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <span>Attach (UTXO)</span>
+                    </button>
+                    <button class="tx-card w-full flex items-center space-x-3 rounded-lg hidden" data-type="detach">
+                        <div class="transaction-icon cancel-icon">
+                            <i class="fas fa-link-slash"></i>
+                        </div>
+                        <span>Detach (UTXO)</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main id="main" class="flex-1 p-6">
+            <div class="main-content" data-type="connect-wallet">
+                <div class="container mx-auto max-w-4xl">
+                    <!-- Transaction Header -->
+                    <div class="mb-8">
+                        <p class="text-text-secondary">You need to connect your wallet</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+
+    <!-- Wallet Connection Modal -->
+    <div id="wallet-modal" class="modal-overlay">
+        <div class="modal-content glass-card p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">Connect Your Wallet</h3>
+                <button id="close-wallet-modal" class="text-text-secondary hover:text-text-primary">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <p class="text-text-secondary mb-6">Select a wallet provider to connect to the Counterparty network</p>
+            
+            <div class="space-y-4">
+                <!-- Unisat Wallet -->
+                <button id="wallet-unisat" class="wallet-option w-full p-4 rounded-xl bg-card-bg border border-border-color flex items-center space-x-4">
+                    <i class="fas fa-university text-accent-blue p-2"></i>
+                    Unisat Wallet
+                </button>
+                
+                <!-- OKX Wallet -->
+                <button id="wallet-okx" class="wallet-option w-full p-4 rounded-xl bg-card-bg border border-border-color flex items-center space-x-4 hidden">
+                    <i class="fas fa-globe-americas text-accent-purple p-2"></i>
+                    OKX Wallet
+                </button>
+
+                <!-- Leather Wallet -->
+                <button id="wallet-okx" class="wallet-option w-full p-4 rounded-xl bg-card-bg border border-border-color flex items-center space-x-4 hidden">
+                    <i class="fas fa-globe-americas text-accent-purple p-2"></i>
+                    Leather Wallet
+                </button>
+                
+                <!-- freewallet -->
+                <button id="wallet-other" class="wallet-option w-full p-4 rounded-xl bg-card-bg border border-border-color flex items-center space-x-4 hidden">
+                    <i class="fas fa-wallet text-accent-teal p-2"></i>
+                    FreeWallet/Electrum/Other
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Overlay -->
+    <div id="general-modal" class="modal-overlay">
+        <div class="modal-content glass-card max-w-2xl w-full rounded-xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="border-b border-border-color p-6 flex justify-between items-center">
+                <h3 id="modal-title" class="text-xl font-bold">Placeholder</h3>
+                <button id="close-modal" class="text-text-secondary hover:text-text-primary">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div id="modal-body" class="p-6">
+                <!-- Content will be injected here -->
+                <div class="text-center py-8">
+                    <i class="fas fa-info-circle text-accent-blue text-4xl mb-4"></i>
+                    <p class="text-text-primary">Placeholder</p>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="border-t border-border-color p-6 flex justify-end space-x-3">
+                <button id="modal-cancel" class="px-4 py-2 rounded-lg border border-border-color hover:bg-card-bg transition">Cancel</button>
+                <button id="modal-confirm" class="btn-primary px-4 py-2 rounded-lg">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./scripts/wallet.js"></script>
+    <script type="module" src="index.js"></script>
+</body>
+</html>

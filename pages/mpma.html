@@ -1,0 +1,42 @@
+<div class="container mx-auto max-w-4xl">
+    <!-- Transaction Header -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-2">MPMA</h2>
+        <p class="text-text-secondary">Efficiently send many assets to many users in one transaction</p>
+    </div>
+    
+    <!-- Transaction Form -->
+    <div class="glass-card rounded-xl p-6 mb-8">
+        <span id="mpma-selected-asset" class="hidden"></span>
+
+        <div class="mb-6">
+            <label class="block text-text-secondary text-sm mb-2">Quantities</label>
+            <textarea id="mpma-asset-csv" type="text" rows="20" cols="100" placeholder="XCP,bc1q59gtzzwf5mdqar0srrr7xfkvy5l643lydnw9re,1&#10;MYASSET,bc1q59gtzzwf5mdqar0srrr7xfkvy5l643lydnw9re,1" 
+                    class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"></textarea>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-text-secondary text-sm mb-2">Memo (1 memo for now, cant get individual ones working?)</label>
+            <textarea id="mpma-asset-memos" type="text" rows="4" cols="50" placeholder="memo here" 
+                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"></textarea>
+        </div>
+        <div class="mb-6">
+            <label class="block text-text-secondary text-sm mb-2">Fee: <span id="mpma-selected-fee-rate">3</span> (sats/vb) </label> 
+            <div class="flex space-x-2">
+                <div class="relative w-full">
+                    <label for="mpma-sats-per-vb-slider" class="sr-only">Labels range</label>
+                    <input id="mpma-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-4 pt-4 border-t border-border-color justify-end">
+            <button id="mpma-submit-tx-btn" class="btn-primary px-6 py-3 rounded-lg flex">
+                <i class="fas fa-paper-plane mr-2"></i> Submit Transaction
+            </button>
+        </div>
+    </div>
+</div>
