@@ -69,6 +69,7 @@ class OkxConnect {
                     this.walletAddress = selectedAccount.address;
                     this.publicKey = selectedAccount.publicKey
                     this.connected = true;
+                    this.walletName = "okx";
                     console.log("Connected with Okx: ", this.walletAddress);
                     // console.log("pubkey: ", this.publicKey);
                 } else

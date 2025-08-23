@@ -82,6 +82,7 @@ class LeatherConnect {
                     this.walletAddress = await window.LeatherProvider?.request("getAddresses");
                     this.publicKey = account.publicKey
                     this.accountNumber = LeatherConnect.extractAccountNumber(account.derivationPath);
+                    this.walletName = "leather";
                     this.connected = true;
                     console.log("Connected with Leather: ", this.walletAddress);
 

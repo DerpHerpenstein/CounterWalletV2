@@ -31,11 +31,12 @@ class ManualConnect {
     }
 
 
-    async connect() {
+    async connect(walletAddress) {
         this.connected = false;
-        this.walletAddress = "";
-        this.publicKey = ""
+        this.walletAddress = walletAddress;
+        this.publicKey = "",
         this.connected = true;
+        this.walletName = "manual";
         console.log("Connected with Manual Wallet: ", this.walletAddress);
     }
 }
