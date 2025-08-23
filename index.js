@@ -64,6 +64,7 @@ const pageObjects = {
     // pages that dont need wallet
     "balances": {wallet: false},
     "recent": {wallet: false},
+    "disclaimer": {wallet: false},
 
     "myassets": {wallet: true},
     // pages that do
@@ -86,7 +87,7 @@ const pageObjects = {
 }
 
 const pageNames = Object.keys(pageObjects);
-window.currentPage = "recent";
+window.currentPage = "disclaimer";
 
 const loadPage = async (pageName) =>  {
     const pageUrl = "./pages/" + pageName + ".html";
