@@ -87,7 +87,7 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
     
     // Close modal when clicking outside
     walletModal.addEventListener('click', async function(e) {
-        console.log(e.target)
+        //console.log(e.target)
         if (e.target === walletModal) {
             walletModal.classList.remove('active');
         }

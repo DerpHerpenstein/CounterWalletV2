@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             //console.log(this.dataset.type)
             currentPage = this.dataset.type;
             // if the wallet needs to be connected and the page needs a wallet
-            console.log(pageObjects[this.dataset.type].wallet, this.dataset.type)
+            //console.log(pageObjects[this.dataset.type].wallet, this.dataset.type)
             if(walletProvider?.walletAddress && pageObjects[this.dataset.type].wallet){
                 setActiveType(currentPage);
             }

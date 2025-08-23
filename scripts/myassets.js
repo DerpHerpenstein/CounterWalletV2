@@ -51,7 +51,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
         }
     }
 
-    console.log(event.target);
+    //console.log(event.target);
     if (event.target.id === 'myassets-load-assets-btn') {
         let response = await CounterpartyV2.getUserAssets(window.walletProvider.walletAddress,page,50);
         myAssetsData = myAssetsData.concat(response.result);
