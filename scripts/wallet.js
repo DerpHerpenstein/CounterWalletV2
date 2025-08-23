@@ -14,13 +14,53 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
         let txData = JSON.parse(JSON.stringify(counterpartyTxData)); // create a new object
         console.log("Recent Transaction Data", txData);
 
-        async function beginSignAndBroadcast(tmpData){
+        async function broadcastTaprootTx(tmpData){
             try{
-                console.log("Generated tx info", tmpData)
-                let finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
-                console.log("Corrected PSBT", finalPsbt);
-                let result = await walletProvider.signAndBroadcastPSBT(finalPsbt);
-                console.log(result);
+                var url = "https://mempool.space/api/tx";
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'text/plain'
+                    },
+                    body: tmpData.signed_reveal_rawtransaction
+                });
+                const txHash = await response.text();
+                return txHash;
+            } catch (err) {
+                generalModal.openError("Error Submitting taproot tx!", JSON.stringify(tmpData));
+            }
+          
+          }
+
+        async function beginSignAndBroadcast(tmpData, isTaprootTx){
+            try{
+                console.log("Generated tx info", tmpData);
+                // seperate behavior for manual wallet, need to show the data, but wont actually sign anything
+                if(walletProvider.walletName === "manual"){
+
+                }
+                else{
+                    let finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
+                    console.log("Corrected PSBT", finalPsbt);
+                    let result = await walletProvider.signAndBroadcastPSBT(finalPsbt);
+                    window.showToast(`
+                        Transaction successful!<br>
+                        <a href="https://mempool.space/tx/${result}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
+                        `, 'success');
+                    console.log("Signed Tx Hash",result);
+                    if(isTaprootTx){
+                        window.showToast(`Broadcasting taproot reveal tx...`, 'Info');
+                        // wait for the first tx to propagate for a few seconds
+                        setTimeout( async () => {
+                            let taprootResult = await broadcastTaprootTx(tmpData);
+                            window.showToast(`
+                                Reveal Transaction successful!<br>
+                                <a href="https://mempool.space/tx/${taprootResult}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
+                                `, 'success');
+                        },5000);
+
+                    }
+                }
             }
             catch(e){
                 generalModal.openError("Error signing transaction", e);
@@ -68,7 +108,7 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
         `, "Confirm Transaction", "Yes", 
         ()=> {
             generalModal.close(); 
-            beginSignAndBroadcast(txData);
+            beginSignAndBroadcast(txData, isTaprootTx);
         } );
         
     }
