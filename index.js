@@ -10,7 +10,8 @@ tailwind.config = {
                 'text-primary': '#f1f5f9',
                 'text-secondary': '#cbd5e1',
                 'border-color': '#334155',
-                'success': '#22c55e'
+                'success': '#22c55e',
+                'error': '#f87171'
             }
         }
     }
@@ -222,5 +223,73 @@ document.addEventListener('DOMContentLoaded', async function() {
             modal.close();
         }
     });
+
+    // show toast
+    window.showToast = function(message, type = "") {
+
+        function getTypeIcon(type) {
+            switch(type) {
+              case 'success': return '<i class="fas fa-check-circle text-success"></i>';
+              case 'error': return '<i class="fas fa-exclamation-triangle text-error"></i>';
+              default: return '<i class="fas fa-info-circle text-text-secondary"></i>';
+            }
+        }
+          
+        function hideToast(toastId) {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.add('animate-fadeOut');
+                setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+                }, 300);
+            }
+        }
+
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+      
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        toast.className = `
+          relative p-4 rounded-lg border border-border-color shadow-lg
+          transition-all duration-300 ease-in-out transform
+          animate-fadeIn
+        `;
+      
+        // Set background and border based on type
+        switch(type) {
+          case 'success':
+            toast.classList.add('bg-card-bg', 'border-success');
+            break;
+          case 'error':
+            toast.classList.add('bg-card-bg', 'border-error');
+            break;
+          default:
+            toast.classList.add('bg-card-bg', 'border-border-color');
+        }
+      
+        // Close button
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '<i class="fas fa-times text-text-secondary hover:text-text-primary"></i>';
+        closeBtn.className = 'absolute top-2 right-2';
+        closeBtn.onclick = () => hideToast(toast.id);
+      
+        // Message content
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'flex items-start';
+        messageDiv.innerHTML = `
+          <span class="mr-2 mt-0.5">
+            ${getTypeIcon(type)}
+          </span>
+          <div class="text-text-primary">${message}</div>
+        `;
+      
+        toast.appendChild(closeBtn);
+        toast.appendChild(messageDiv);
+        container.appendChild(toast);
+      }; 
 
 });
