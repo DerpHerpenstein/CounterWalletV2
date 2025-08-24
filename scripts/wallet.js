@@ -1,5 +1,7 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 import UniSatConnect from "../wallets/UniSatConnect.js";
+import ManualConnect from "../wallets/ManualConnect.js"
+import "./bitcoinjs-lib.min.js"
 
     // Wallet modal functionality
     const walletBtn = document.getElementById('wallet-connect-btn');
@@ -140,6 +142,7 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
                 setActiveType(currentPage);
+                /*
                 CounterpartyV2.getUserAssets(walletProvider.walletAddress,0,1000).then( (res) => {
                     if(!window.dataStore.assets){
                         window.dataStore.assets = {};
@@ -147,10 +150,30 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
                     }
 
                 });
+                */
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
             }
+        }
+        else if(e.target.id === "wallet-manual"){
+            let tmpAddress = document.getElementById('wallet-modal-address-input').value;
+            try{
+                if(tmpAddress.length == 0){
+                    throw new Error("Enter an address to connect")
+                }
+                bitcoin.address.toOutputScript(tmpAddress, bitcoin.networks.bitcoin);
+                walletProvider = new ManualConnect();
+                await walletProvider.connect(tmpAddress);
+                console.log(walletProvider);
+                walletModal.classList.remove('active');
+                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                setActiveType(currentPage);
+            }
+            catch(e){
+                generalModal.openError("Wallet connect error", e);
+            }
+            
         }
     });
   

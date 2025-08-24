@@ -37,8 +37,8 @@ class ManualConnect {
         this.publicKey = "",
         this.connected = true;
         this.walletName = "manual";
-        console.log("Connected with Manual Wallet: ", this.walletAddress);
+        console.log("Connected with a Manual Wallet: ", this.walletAddress);
     }
 }
 
-export default LeatherConnect;
+export default ManualConnect;
