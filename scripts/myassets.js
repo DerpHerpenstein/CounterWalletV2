@@ -53,10 +53,15 @@ document.getElementById('main').addEventListener('click', async function(event) 
 
     //console.log(event.target);
     if (event.target.id === 'myassets-load-assets-btn') {
-        let response = await CounterpartyV2.getUserAssets(window.walletProvider.walletAddress,page,50);
-        myAssetsData = myAssetsData.concat(response.result);
-        page++;
-        updateMyAssets();
+        try{
+            let response = await CounterpartyV2.getUserAssets(window.walletProvider.walletAddress,page,50);
+            myAssetsData = myAssetsData.concat(response.result);
+            page++;
+            updateMyAssets();
+        }
+        catch(e){
+            generalModal.openError("Failed to load assets", e);
+        }
     }
     else if(event.target.classList.contains('myassets-open-explorer-btn')){
         window.open(event.target.dataset.url, '_blank');
