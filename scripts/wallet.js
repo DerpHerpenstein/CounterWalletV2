@@ -16,7 +16,7 @@ import "./bitcoinjs-lib.min.js"
         let txData = JSON.parse(JSON.stringify(counterpartyTxData)); // create a new object
         console.log("Recent Transaction Data", txData);
 
-        async function broadcastTaprootTx(tmpData){
+        async function broadcastTaprootTx(tmpData, noModal){
             try{
                 var url = "https://mempool.space/api/tx";
                 const response = await fetch(url, {
@@ -26,10 +26,20 @@ import "./bitcoinjs-lib.min.js"
                     },
                     body: tmpData.signed_reveal_rawtransaction
                 });
-                const txHash = await response.text();
-                return txHash;
+                
+                const responseText = await response.text();
+                if(response.ok === false){
+                    throw new Error(responseText); // if we get not ok this is the error
+                }
+                else{
+                    return responseText; // if we get ok this will be the tx hash
+                }
             } catch (err) {
-                generalModal.openError("Error Submitting taproot tx!", JSON.stringify(tmpData));
+                // if we want a modal
+                if(!noModal){
+                    generalModal.openError("Error Submitting taproot tx!", err + " - " +JSON.stringify(tmpData));
+                }
+                throw new Error("Error Submitting taproot tx: " + err + " - " + JSON.stringify(tmpData));
             }
           
           }
@@ -39,6 +49,55 @@ import "./bitcoinjs-lib.min.js"
                 console.log("Generated tx info", tmpData);
                 // seperate behavior for manual wallet, need to show the data, but wont actually sign anything
                 if(walletProvider.walletName === "manual"){
+                    generalModal.open(`
+                        <div class="space-y-4">
+                            <div class="font-bold text-sm text-amber-500">
+                                WARNING: This is a raw hex transaction. Signing it could steal everything in your wallet! Use a decoder and only sign this if you agree with it!
+                            </div>
+                            <h4 class="font-bold text-lg">Transaction Hex To Sign</h4>
+                            <p class="text-text-primary">Use your wallet to manually sign this</p>
+                            <div class="w-full h-20 overflow-y-auto bg-card-bg border border-border-color p-2">
+                                <p class="text-text-primary">${escapeHtml(tmpData.rawtransaction)}</p>
+                            </div>
+                            ${isTaprootTx ? `
+                            <div class="font-bold text-sm text-yellow-500">
+                                WARNING: This reveal transaction must be submitted to finalize your counterparty transaction. Submit this transaction AFTER you sign and submit the one above.
+                            </div>
+                            <h4 class="font-bold text-lg">Signed Taproot Reveal Hex</h4>
+                            <div class="w-full h-20 overflow-y-auto bg-card-bg border border-border-color p-2">
+                                <p class="text-text-primary">${escapeHtml(tmpData.signed_reveal_rawtransaction)}</p>
+                            </div>
+                                ` : "" }
+                        </div>
+                    `, "Manually Sign Transaction", (isTaprootTx? "Broadcast Reveal Tx" : "Okay"), 
+                    ()=> {
+                        
+                        if(isTaprootTx){
+                            window.showToast(`Broadcasting taproot reveal tx...`, 'Info');
+                            // wait for the first tx to propagate for a few seconds
+                            setTimeout( async () => {
+                                try{
+                                    let taprootResult = await broadcastTaprootTx(tmpData, true);
+                                    console.log(taprootResult);
+                                    window.showToast(`
+                                        Reveal Transaction successful!<br>
+                                        <a href="https://mempool.space/tx/${taprootResult}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
+                                        `, 'success');
+                                    generalModal.close(); 
+                                }
+                                catch(e){
+                                    console.log("Error broadcasting reveal", e);
+                                    window.showToast(`
+                                        Reveal Transaction broadcast failed!<br>
+                                        ${e}
+                                        `, 'error');
+                                }
+                            },100);
+                        }
+                        else{
+                            generalModal.close(); 
+                        }
+                    } );
 
                 }
                 else{
