@@ -1,6 +1,7 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 import UniSatConnect from "../wallets/UniSatConnect.js";
 import OkxConnect from "../wallets/OkxConnect.js";
+import LeatherConnect from "../wallets/LeatherConnect.js";
 import ManualConnect from "../wallets/ManualConnect.js"
 import "./bitcoinjs-lib.min.js"
 
@@ -211,6 +212,19 @@ import "./bitcoinjs-lib.min.js"
         else if(e.target.id === "wallet-okx"){
             try{
                 walletProvider = new OkxConnect();
+                await walletProvider.connect();
+                console.log(walletProvider)
+                walletModal.classList.remove('active');
+                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                setActiveType(currentPage);
+            }
+            catch(e){
+                window.generalModal.openError("Error connecting wallet", e);
+            }
+        }
+        else if(e.target.id === "wallet-leather"){
+            try{
+                walletProvider = new LeatherConnect();
                 await walletProvider.connect();
                 console.log(walletProvider)
                 walletModal.classList.remove('active');

@@ -65,6 +65,7 @@ class LeatherConnect {
     }
     
     static accountFromDerivationPath(path) {
+        const segments = path.split("/");
         const account = parseInt(segments[3].replaceAll("'", ""), 10);	
         if (isNaN(account)) throw new Error("Cannot parse account number from path");	
         return account;	
@@ -76,12 +77,13 @@ class LeatherConnect {
         if (LeatherConnect.isLeatherInstalled()) {
             try {
                 let response = await window.LeatherProvider?.request('getAddresses'); 
-                let account = accountFromDerivationPath(response.result.addresses[0].derivationPath);
+                //console.log(response);
+                let account = LeatherConnect.accountFromDerivationPath(response.result.addresses[0].derivationPath);
                 
                 if (typeof account !== 'undefined') {
-                    this.walletAddress = await window.LeatherProvider?.request("getAddresses");
-                    this.publicKey = account.publicKey
-                    this.accountNumber = LeatherConnect.extractAccountNumber(account.derivationPath);
+                    this.walletAddress = response.result.addresses[0].address;//await window.LeatherProvider?.request("getAddresses");
+                    this.publicKey = response.result.addresses[0].publicKey;
+                    //this.accountNumber = LeatherConnect.extractAccountNumber(account.derivationPath);
                     this.walletName = "leather";
                     this.connected = true;
                     console.log("Connected with Leather: ", this.walletAddress);
