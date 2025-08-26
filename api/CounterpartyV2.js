@@ -1,6 +1,7 @@
 class CounterpartyV2 {
 
     static baseEndpoint = "https://api.counterparty.io:4000/v2/";
+    static composeSuffix = "&allow_unconfirmed_inputs=true"
 
     /**
      * Calls the REST API
@@ -190,7 +191,7 @@ class CounterpartyV2 {
                 payloadObject.transfer_destination = destinationAddress;
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/issuance`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/issuance`, this.composeSuffix, payload);
             
             return response;
         } catch (error) {
@@ -213,7 +214,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/dispenser`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/dispenser`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -231,7 +232,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/send`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/send`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -253,7 +254,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/send`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/send`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -285,7 +286,7 @@ class CounterpartyV2 {
             console.log(payloadObject);
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/mpma`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/mpma`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -304,7 +305,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/destroy`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/destroy`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -323,7 +324,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/dividend`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/dividend`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -345,7 +346,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/order`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/order`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
@@ -361,7 +362,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/fairmint`, "", payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/fairmint`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
