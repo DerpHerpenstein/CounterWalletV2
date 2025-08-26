@@ -1,5 +1,6 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 import UniSatConnect from "../wallets/UniSatConnect.js";
+import OkxConnect from "../wallets/OkxConnect.js";
 import ManualConnect from "../wallets/ManualConnect.js"
 import "./bitcoinjs-lib.min.js"
 
@@ -201,15 +202,20 @@ import "./bitcoinjs-lib.min.js"
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
                 setActiveType(currentPage);
-                /*
-                CounterpartyV2.getUserAssets(walletProvider.walletAddress,0,1000).then( (res) => {
-                    if(!window.dataStore.assets){
-                        window.dataStore.assets = {};
-                        window.dataStore.assets[walletProvider.walletAddress] = {epoch: Date.now(), result: res.result};
-                    }
-
-                });
-                */
+            }
+            catch(e){
+                window.generalModal.openError("Error connecting wallet", e);
+            }
+        }
+        // connect okx
+        else if(e.target.id === "wallet-okx"){
+            try{
+                walletProvider = new OkxConnect();
+                await walletProvider.connect();
+                console.log(walletProvider)
+                walletModal.classList.remove('active');
+                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                setActiveType(currentPage);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
