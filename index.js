@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initialize with Send as active
     setActiveType(currentPage);
-    
+
 
     // general modal
     window.generalModal = {
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.getElementById('modal-cancel').addEventListener('click', generalModal.close);
     document.querySelector('.modal-overlay').addEventListener('click', (e) => {
         if (e.target === document.querySelector('.modal-overlay')) {
-            modal.close();
+            generalModal.close();
         }
     });
 

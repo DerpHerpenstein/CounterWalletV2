@@ -146,6 +146,16 @@ class CounterpartyV2 {
         }
     }
 
+    static async getFairminters(page, pageSize = 100) {
+        try {
+            let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
+            let response = await this.callAPI(`fairminters`, "", payload);
+            return response;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
     static async checkAssetAvailability(assetName) {
         try {
             let payload = `show_unconfirmed=true`;
@@ -320,7 +330,7 @@ class CounterpartyV2 {
         }
     }
 
-        static async createOrderSatsPerVByte(sourceAddress, giveAssetName, giveAssetQuantity, 
+    static async createOrderSatsPerVByte(sourceAddress, giveAssetName, giveAssetQuantity, 
                         getAssetName, getAssetQuantity, expiration, feeRequired, satsPerVByte) {
         try {
             let payloadObject = {
@@ -336,6 +346,22 @@ class CounterpartyV2 {
 
             let payload = new URLSearchParams(payloadObject).toString();
             let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/order`, "", payload);
+            return response;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    static async fairmintSatsPerVByte(sourceAddress, assetName, satsPerVByte) {
+        try {
+            let payloadObject = {
+                asset:assetName,
+                fee_per_kb: parseInt("" + (satsPerVByte * 1000)),
+                return_psbt: true,
+            }
+
+            let payload = new URLSearchParams(payloadObject).toString();
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/fairmint`, "", payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
