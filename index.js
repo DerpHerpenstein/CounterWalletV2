@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const txCards = document.querySelectorAll('.tx-card');
     const mainContentPages = document.querySelectorAll('.main-content');
     
-    window.setActiveType = (type) => {
+    window.setActivePage = (type) => {
         txCards.forEach(card => {
             card.classList.remove('active');
             if (card.dataset.type === type) {
@@ -146,21 +146,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             // if the wallet needs to be connected and the page needs a wallet
             //console.log(pageObjects[this.dataset.type].wallet, this.dataset.type)
             if(walletProvider?.walletAddress && pageObjects[this.dataset.type].wallet){
-                setActiveType(currentPage);
+                setActivePage(currentPage);
             }
             // if the page doesnt need a wallet
             else if(!pageObjects[this.dataset.type].wallet){
-                setActiveType(currentPage);
+                setActivePage(currentPage);
             }
             //otherwise show the need a wallet page
             else{
-                setActiveType("connect-wallet");
+                setActivePage("connect-wallet");
             }
         });
     });
 
     // Initialize with Send as active
-    setActiveType(currentPage);
+    setActivePage(currentPage);
 
 
     // general modal

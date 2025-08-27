@@ -202,7 +202,8 @@ import "./bitcoinjs-lib.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
-                setActiveType(currentPage);
+                window.currentPage = "myassets";
+                setActivePage(currentPage);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -216,7 +217,8 @@ import "./bitcoinjs-lib.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
-                setActiveType(currentPage);
+                window.currentPage = "myassets";
+                setActivePage(currentPage);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -229,7 +231,8 @@ import "./bitcoinjs-lib.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
-                setActiveType(currentPage);
+                window.currentPage = "myassets";
+                setActivePage(currentPage);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -247,7 +250,8 @@ import "./bitcoinjs-lib.min.js"
                 console.log(walletProvider);
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
-                setActiveType(currentPage);
+                window.currentPage = "myassets";
+                setActivePage(currentPage);
             }
             catch(e){
                 generalModal.openError("Wallet connect error", e);

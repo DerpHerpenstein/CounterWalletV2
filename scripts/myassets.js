@@ -121,7 +121,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
 document.getElementById('general-modal').addEventListener('click', async function(event) {
     if(event.target.classList.contains('myassets-actions-page-btn')){
         document.getElementById(event.target.dataset.page + '-selected-asset').innerText = event.target.dataset.asset;
-        setActiveType(event.target.dataset.page);
+        setActivePage(event.target.dataset.page);
         generalModal.close();
     }
 });
