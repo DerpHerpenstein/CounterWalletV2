@@ -1,5 +1,9 @@
 import "./bitcoinjs-lib.min.js"
+import "./secp256k1.min.js"
 import Buffer from "./buffer.min.js"
+
+const ecc = window.secp256k1;
+bitcoin.initEccLib(ecc);
 
 window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
   try {
@@ -50,7 +54,7 @@ window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
     });
 
     // Serialize PSBT to base64
-    return psbt.toBase64();
+    return psbt.toHex();
   } catch (error) {
     return `Error: ${error.message}`;
   }

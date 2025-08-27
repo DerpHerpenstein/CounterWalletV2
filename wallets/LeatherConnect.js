@@ -37,10 +37,10 @@ class LeatherConnect {
     
             let signedPsbt = await window.LeatherProvider.request('signPsbt', requestParams);
             if(signedPsbt.result?.hex){
-                const psbt = bitcoinjs.Psbt.fromHex(signedPsbt.result.hex);
+                const psbt = bitcoin.Psbt.fromHex(signedPsbt.result.hex);
                 psbt.finalizeAllInputs();
                 const txHex = psbt.extractTransaction().toHex();
-                const tx = bitcoinjs.Transaction.fromHex(txHex);
+                const tx = bitcoin.Transaction.fromHex(txHex);
                 return tx.getId();
             }
             else{
