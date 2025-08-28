@@ -168,7 +168,7 @@ class CounterpartyV2 {
             throw new Error(error.message);
         }
     }
-
+    /*
     static async createIssuanceSatsPerVByte(sourceAddress, destinationAddress, 
         assetName, quantity, divisible, 
         locked, descriptionData, satsPerVByte, encoding, mimeType, inscription) {
@@ -186,6 +186,35 @@ class CounterpartyV2 {
                 encoding: encoding,
                 mime_type: mimeType,
                 inscription: inscription
+            }
+            if(destinationAddress != sourceAddress)
+                payloadObject.transfer_destination = destinationAddress;
+
+            let payload = new URLSearchParams(payloadObject).toString();
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/issuance`, this.composeSuffix, payload);
+            
+            return response;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    */
+
+    static async createIssuanceSatsPerVByte(sourceAddress, destinationAddress, 
+        assetName, quantity, divisible, 
+        locked, reset, descriptionData, satsPerVByte) {
+
+        try {
+            let payloadObject = {
+                destinationAddress:destinationAddress,
+                asset: assetName,
+                quantity: quantity,
+                divisible: divisible,
+                lock: locked,
+                reset: reset,
+                description: descriptionData,
+                fee_per_kb: parseInt("" + (satsPerVByte * 1000)),
+                return_psbt: true,
             }
             if(destinationAddress != sourceAddress)
                 payloadObject.transfer_destination = destinationAddress;

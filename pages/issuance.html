@@ -1,14 +1,79 @@
 <div class="container mx-auto max-w-4xl">
-    <div class="glass-card rounded-xl p-6">
-        <h3 class="text-lg font-semibold mb-4">Create Issuance</h3>
+    <!-- Transaction Header -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-2">Create Issuance</h2>
+        <p class="text-text-secondary">Create a new Counterparty asset</p>
+    </div>
     
-        <div class="overflow-x-auto">
-            <div class="w-full">
-                <div class="">             TODO: make something here       
-                    <div id="recent-transactions-data" class="">
-                    </div>
-                  </div>
+    <!-- Transaction Form -->
+    <div class="glass-card rounded-xl p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-text-secondary text-sm mb-2">Transfer Destination Address</label>
+                <div class="flex space-x-2">
+                    <input id="issuance-destination-address" type="text" placeholder="bc1q59gtzzwf5mdqar0srrr7xfkvy5l643lydnw9re" 
+                            class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+                </div>
             </div>
+            
+            <div>
+                <label class="block text-text-secondary text-sm mb-2">Asset Name</label>
+                <div class="flex space-x-2">
+                    <input id="issuance-selected-asset" type="text" placeholder="MYASSET" 
+                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-text-secondary text-sm mb-2">Quantity</label>
+                <input id="issuance-asset-quantity" type="number" placeholder="0" 
+                        class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+            </div>
+            
+            <div class="flexbox items-center mt-10">
+                <label class="inline-block text-text-secondary text-sm">
+                    <input id="issuance-asset-locked" type="checkbox">
+                    Locked
+                </label>
+
+                <label class="inline-block text-text-secondary text-sm">
+                    <input id="issuance-asset-divisible" type="checkbox">
+                    Divisible
+                </label>
+
+                <label class="inline-block text-text-secondary text-sm">
+                    <input id="issuance-asset-reset" type="checkbox">
+                    Reset
+                </label>
+            </div>
+
+            <div>
+
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <label class="block text-text-secondary text-sm mb-2">Description</label>
+            <input id="issuance-asset-description" type="text" placeholder="Add asset description" 
+                    class="input-field w-full px-4 py-3 rounded-lg focus:outline-none">
+        </div>
+        <div class="mb-6">
+            <label class="block text-text-secondary text-sm mb-2">Fee: <span id="issuance-selected-fee-rate">3</span> (sats/vb) </label> 
+            <div class="flex space-x-2">
+                <div class="relative w-full">
+                    <label for="issuance-sats-per-vb-slider" class="sr-only">Labels range</label>
+                    <input id="issuance-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-4 pt-4 border-t border-border-color justify-end">
+            <button id="issuance-submit-tx-btn" class="btn-primary px-6 py-3 rounded-lg flex">
+                <i class="fas fa-paper-plane mr-2"></i> Submit Transaction
+            </button>
         </div>
     </div>
 </div>
