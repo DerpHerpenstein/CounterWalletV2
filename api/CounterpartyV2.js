@@ -68,7 +68,8 @@ class CounterpartyV2 {
         }
     }
 
-    static async getUserAssets(walletAddress, page = 0, pageSize = 100) {
+    static async getUserAssets(walletAddress, page, pageSize = 100) {
+        page -=1;
         try {
             let payload = `addresses=${walletAddress}&limit=${pageSize}&offset=${pageSize*page}&verbose=true`;
             let response = await this.callAPI("addresses/balances", "", payload);
@@ -88,6 +89,7 @@ class CounterpartyV2 {
     }
 
     static async getIssuances(walletAddress, page, pageSize = 100) {
+        page -=1;
         try {
             let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
             let response = await this.callAPI(`addresses/${walletAddress}/issuances`, "", payload);
@@ -99,6 +101,7 @@ class CounterpartyV2 {
     }
 
     static async getDispensers(identifier, page, pageSize = 100) {
+        page -=1;
         try {
             if(identifier.length < 25){ // minimum address known is 26b
                 // get by asset
@@ -119,6 +122,7 @@ class CounterpartyV2 {
     }
 
     static async getDispenses(identifier, page, pageSize = 100) {
+        page -=1;
         try {
             if(identifier.length < 25){ // minimum address known is 26b
                 // get by asset
@@ -138,6 +142,7 @@ class CounterpartyV2 {
     }
 
     static async getHolders(asset, page, pageSize = 100) {
+        page -=1;
         try {
             let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
             let response = await this.callAPI(`assets/${asset}/holders`, "", payload);
@@ -148,9 +153,21 @@ class CounterpartyV2 {
     }
 
     static async getFairminters(page, pageSize = 100) {
+        page -=1;
         try {
             let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
             let response = await this.callAPI(`fairminters`, "", payload);
+            return response;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    static async getDexOrders(walletAddress, page, pageSize = 100) {
+        page -=1;
+        try {
+            let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}&verbose=true`;
+            let response = await this.callAPI(`addresses/${walletAddress}/orders`, "", payload);
             return response;
         } catch (error) {
             throw new Error(error.message);

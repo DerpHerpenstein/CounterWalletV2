@@ -1,6 +1,6 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 
-let page = 0;
+let page = 1;
 let myAssetsData = [];
 
 function generateAssetPreview(asset, descriptionId) {
