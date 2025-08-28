@@ -7,6 +7,9 @@ document.getElementById('main').addEventListener('click', async function(event) 
         const selectedFee = document.getElementById('issuance-selected-fee-rate');
         selectedFee.innerText = `${event.target.value}`
     }
+    else if(event.target.id === "issuance-generate-numeric"){
+        document.getElementById('issuance-selected-asset').value = await CounterpartyV2.generateAvailableAssetName();
+    }
     else if(event.target.id === "issuance-submit-tx-btn"){
         try{
             let result = await CounterpartyV2.createIssuanceSatsPerVByte(
