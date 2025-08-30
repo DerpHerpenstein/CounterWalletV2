@@ -399,6 +399,23 @@ class CounterpartyV2 {
         }
     }
 
+    static async createCancelSatsPerVByte(sourceAddress, orderTxHash, satsPerVByte) {
+        try {
+            let payloadObject = {
+                offer_hash: orderTxHash,
+                fee_required: feeRequired,
+                fee_per_kb: parseInt("" + (satsPerVByte * 1000)),
+                return_psbt: true,
+            }
+
+            let payload = new URLSearchParams(payloadObject).toString();
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/order`, this.composeSuffix, payload);
+            return response;
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
     static async fairmintSatsPerVByte(sourceAddress, assetName, satsPerVByte) {
         try {
             let payloadObject = {
