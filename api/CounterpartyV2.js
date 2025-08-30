@@ -103,15 +103,22 @@ class CounterpartyV2 {
     static async getDispensers(identifier, page, pageSize = 100) {
         page -=1;
         try {
+            console.log(identifier);
+            if(identifier.length === 0){
+                // get latest
+                let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}&verbose=true`;
+                let response = await this.callAPI(`dispensers`, "", payload);
+                return response;
+            }
             if(identifier.length < 25){ // minimum address known is 26b
                 // get by asset
-                let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
+                let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}&verbose=true`;
                 let response = await this.callAPI(`assets/${identifier}/dispensers`, "", payload);
                 return response;
             }
             else{
                 // get by address
-                let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}`;
+                let payload = `status=open&limit=${pageSize}&offset=${pageSize*page}&verbose=true`;
                 let response = await this.callAPI(`addresses/${identifier}/dispensers`, "", payload);
                 return response;
             }
@@ -278,7 +285,7 @@ class CounterpartyV2 {
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
-            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/send`, this.composeSuffix, payload);
+            let response = await CounterpartyV2.callAPI(`addresses/${sourceAddress}/compose/dispense`, this.composeSuffix, payload);
             return response;
         } catch (error) {
             throw new Error(error.message);
