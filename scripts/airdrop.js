@@ -10,19 +10,24 @@ document.getElementById('main').addEventListener('click', async function(event) 
     else if(event.target.id === "airdrop-submit-tx-btn"){
         try{
             let destinations = document.getElementById('airdrop-destination-address').value;
-            let destinationsArray = destinations.split(",");
+            // make sure we can split whitespace new line or comma deliniations
+            let destinationsArray = destinations.split(/[\s,]+/).filter(dest => dest.length > 0);//split(",");
             console.log(destinationsArray);
             let totalLength = destinationsArray.length
             let selectedAsset = document.getElementById('airdrop-selected-asset').innerText;
             let quantity = document.getElementById('airdrop-asset-quantity').value;
+            // added normalizion for MPMA single asset airdrops
+            quantity = await CounterpartyV2.normalizeToSatsIfNeeded(selectedAsset,quantity);
+
             // repeat the asset and quantites then remove the last comma
             let finalAssets =(selectedAsset + ",").repeat(totalLength).slice(0, -1);
             let finalQuantities = (quantity + ",").repeat(totalLength).slice(0, -1);
+            let finalDestinations = destinationsArray.join(",");
 
 
             let result = await CounterpartyV2.mpmaSatsPerVByte(
                 walletProvider.walletAddress,                                   // source address
-                document.getElementById('airdrop-destination-address').value,   // destination addresses
+                finalDestinations,                                              // destination addresses
                 finalAssets,                                                    //asset names
                 finalQuantities,                                                //asset quantity
                 document.getElementById('airdrop-sats-per-vb-slider').value,    // fee sats/vb
