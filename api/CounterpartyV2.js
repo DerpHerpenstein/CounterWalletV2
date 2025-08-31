@@ -28,6 +28,19 @@ class CounterpartyV2 {
         return Math.floor(Math.random() * (max - min) ) + min;
     }
 
+    static async normalizeToSatsIfNeeded(assetName, valueString){
+        // checks if the asset is divisible, if it is returns the normalized value
+        // if its not, returns the original value
+        let assetResponse = await this.getAsset(assetName);
+        let isDivisible = assetResponse.result.divisible;
+        if(isDivisible){
+            let normalizedValue = parseFloat(valueString);
+            return parseInt(normalizedValue*1e8);
+        }
+        return valueString;
+        
+    }
+
     static async generateAvailableAssetName(){
         let max_asset_id = 2**64 - 1
         let min_asset_id = 26**12 + 1
@@ -82,7 +95,7 @@ class CounterpartyV2 {
 
     static async getAsset(asset){
         try {
-            return (await this.callAPI("assets", "issuances?limit=100", asset)).result[-1];
+            return (await this.callAPI("assets/" + asset, "", ""));
         } catch (error) {
             throw new Error(error.message);
         }
@@ -256,6 +269,8 @@ class CounterpartyV2 {
                                 giveQuantity, escrowQuantity, 
                                 ratePerGiveInSats, status,  satsPerVByte) {
         try {
+            giveQuantity = await this.normalizeToSatsIfNeeded(assetName, giveQuantity);
+            escrowQuantity = await this.normalizeToSatsIfNeeded(assetName, escrowQuantity);
             let payloadObject  = {
                 asset: assetName,
                 give_quantity: giveQuantity,
@@ -296,6 +311,7 @@ class CounterpartyV2 {
     static async transferSatsPerVByte(sourceAddress, destinationAddress, assetName, 
                         quantity, satsPerVByte, memo="None", memoIsHex="False") {
         try {
+            quantity = await this.normalizeToSatsIfNeeded(assetName, quantity);
             let payloadObject = {
                 destination: destinationAddress,
                 asset:assetName,
@@ -314,6 +330,7 @@ class CounterpartyV2 {
         }
     }
 
+    // TODO: make MPMA AUTOMATICALLY NORMALIZE ASSETS
     static async mpmaSatsPerVByte(sourceAddress, destinationAddresses, assetNames, 
                         quantities, satsPerVByte, memo="None", memoIsHex="False", memos="None", memosAreHex="False") {
         try {
@@ -349,6 +366,7 @@ class CounterpartyV2 {
     static async destroySatsPerVByte(sourceAddress, assetName, 
                         quantity, satsPerVByte, tag) {
         try {
+            quantity = await this.normalizeToSatsIfNeeded(assetName, quantity);
             let payloadObject = {
                 asset:assetName,
                 quantity: quantity,
@@ -368,6 +386,7 @@ class CounterpartyV2 {
     static async dividendSatsPerVByte(sourceAddress, quantityPerUnit, assetName, 
                         dividendAssetName, satsPerVByte) {
         try {
+            quantity_per_unit = await this.normalizeToSatsIfNeeded(dividendAssetNamessetName, quantity_per_unit);
             let payloadObject = {
                 quantity_per_unit:quantityPerUnit,
                 asset:assetName,
@@ -387,6 +406,8 @@ class CounterpartyV2 {
     static async createOrderSatsPerVByte(sourceAddress, giveAssetName, giveAssetQuantity, 
                         getAssetName, getAssetQuantity, expiration, feeRequired, satsPerVByte) {
         try {
+            giveAssetQuantity = await this.normalizeToSatsIfNeeded(giveAssetName, giveAssetQuantity);
+            getAssetQuantity = await this.normalizeToSatsIfNeeded(getAssetName, getAssetQuantity);
             let payloadObject = {
                 give_asset:giveAssetName,
                 give_quantity: giveAssetQuantity,
