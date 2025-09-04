@@ -178,7 +178,9 @@ import "./bitcoinjs-lib.min.js"
     
     if (walletBtn) {
         walletBtn.addEventListener('click', function() {
-            walletModal.classList.add('active');
+            // if we arent logged in, the wallet button should work
+            if(walletProvider === null)
+                walletModal.classList.add('active');
         });
     }
     
