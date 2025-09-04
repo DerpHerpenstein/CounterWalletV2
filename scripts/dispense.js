@@ -38,11 +38,12 @@ document.getElementById('main').addEventListener('click', async function(event) 
     const updateDispensers = () => {
         document.getElementById('dispense-dispenser-data').innerHTML = "";
         for(let i=0; i< dispenseDispenserData.length; i++){
+            let propertyHtml = window.generatePropertyDisplayHtml("dispense-"+dispenseDispenserData[i].tx_hash, dispenseDispenserData[i], ["give_quantity_normalized","give_remaining_normalized","satoshirate_normalized","escrow_quantity_normalized"]);
             document.getElementById('dispense-dispenser-data').innerHTML += 
                 `<div class="dispense-card glass-card rounded-xl overflow-hidden border border-border-color relative">
                     <div class="p-2">
                         <h4>Asset: ${window.escapeHtml(dispenseDispenserData[i].asset)}</h4>
-                        <p>${window.escapeHtml(JSON.stringify(dispenseDispenserData[i],null,2))}</p>
+                        ${propertyHtml}
                         <button data-asset="${window.escapeHtml(dispenseDispenserData[i].asset)}"
                                 data-source="${window.escapeHtml(dispenseDispenserData[i].source)}"
                                 data-givequantitynormalized="${window.escapeHtml(dispenseDispenserData[i].give_quantity_normalized)}"

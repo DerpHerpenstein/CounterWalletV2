@@ -31,11 +31,12 @@ document.getElementById('main').addEventListener('click', async function(event) 
     const updateFairminters = () => {
         document.getElementById('fairmint-fairminter-data').innerHTML = "";
         for(let i=0; i< fairminterData.length; i++){
+            let propertyHtml = window.generatePropertyDisplayHtml("fairmint-data-"+fairminterData[i].txHash, fairminterData[i], ["price", "quantity_by_price", "max_mint_per_tx", "end_block", "lock_quantity","status"]);
             document.getElementById('fairmint-fairminter-data').innerHTML += 
                 `<div class="fairmint-card glass-card rounded-xl overflow-hidden border border-border-color relative">
                     <div class="p-2">
                         <h4>Asset: ${window.escapeHtml(fairminterData[i].asset)}</h4>
-                        <p>${window.escapeHtml(JSON.stringify(fairminterData[i],null,2))}</p>
+                        ${propertyHtml}
                         <button data-asset="${window.escapeHtml(fairminterData[i].asset)}"
                                 data-description="${window.escapeHtml(fairminterData[i].description)}"
                             class="fairmint-mint-btn btn-primary px-6 py-3 rounded-lg flex items-center justify-center">

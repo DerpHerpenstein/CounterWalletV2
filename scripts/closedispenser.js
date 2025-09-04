@@ -35,18 +35,20 @@ document.getElementById('main').addEventListener('click', async function(event) 
     const updateOrders = () => {
         document.getElementById('closedispenser-dispenser-data').innerHTML = "";
         for(let i=0; i< dispensersData.length; i++){
-            const currentOrder = dispensersData[i];
-            console.log(JSON.stringify(currentOrder));
+            const currentDispenser = dispensersData[i];
+            console.log(JSON.stringify(currentDispenser));
+            let propertyHtml = window.generatePropertyDisplayHtml("closedispenser-data-"+currentDispenser.tx_hash, currentDispenser, ["give_quantity_normalized","satoshirate_normalized","give_remaining_normalized","escrow_quantity_normalized"]);
+            //console.log(propertyHtml);
             document.getElementById('closedispenser-dispenser-data').innerHTML += 
                 `<div class="closedispenser-card glass-card rounded-xl overflow-hidden border border-border-color relative">
                     <div class="p-2">
-                        <h4>Asset: ${window.escapeHtml(currentOrder.give_asset)}</h4>
-                        <p>${window.escapeHtml(JSON.stringify(currentOrder,null,2))}</p>
-                        <button data-txhash="${window.escapeHtml(currentOrder.tx_hash)}"
-                                data-asset="${window.escapeHtml(currentOrder.asset)}"
-                                data-givequantity="${window.escapeHtml(currentOrder.give_quantity)}"
-                                data-escrowquantity="${window.escapeHtml(currentOrder.escrow_quantity)}"
-                                data-mainchainrate="${window.escapeHtml(currentOrder.satoshirate)}"
+                        <h4>Asset: ${window.escapeHtml(currentDispenser.asset)}</h4>
+                        ${propertyHtml}
+                        <button data-txhash="${window.escapeHtml(currentDispenser.tx_hash)}"
+                                data-asset="${window.escapeHtml(currentDispenser.asset)}"
+                                data-givequantity="${window.escapeHtml(currentDispenser.give_quantity)}"
+                                data-escrowquantity="${window.escapeHtml(currentDispenser.escrow_quantity)}"
+                                data-mainchainrate="${window.escapeHtml(currentDispenser.satoshirate)}"
                             class="closedispenser-dispenser-btn btn-primary px-6 py-3 rounded-lg flex items-center justify-center">
                             Close Dispenser
                         </button>

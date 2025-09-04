@@ -293,4 +293,54 @@ document.addEventListener('DOMContentLoaded', async function() {
         container.appendChild(toast);
       }; 
 
+
+    window.generatePropertyDisplayHtml = function (containerId, data, subsetKeys = []) {
+
+        // Create grid layout with two columns
+        let html = `<div class="grid grid-cols-2 gap-6">`;
+            
+        let hiddenHTML = ``;
+            
+        // Generate properties
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                const propertyHTML = `
+                    <div class="property-item">
+                        <span class="font-medium">${escapeHtml(key)}:</span>
+                        <span class="ml-2">${escapeHtml(JSON.stringify(data[key]))}</span>
+                    </div>
+                `;
+                
+                if (subsetKeys.includes(key)) {
+                    html += propertyHTML;
+                } else {
+                    hiddenHTML += propertyHTML;
+                }
+            }
+        }
+        html +="</div>";
+
+        hiddenHTML = `
+            <div class="mb-3 mt-3">
+                <!-- Hidden checkbox with proper ID -->
+                <input type="checkbox" id="${containerId}-toggle" class="peer sr-only">
+                
+                <!-- Button-style label that targets the checkbox -->
+                <label for="${containerId}-toggle" class="inline-flex px-6 py-3 btn-primary text-white rounded-lg cursor-pointer transition-all duration-200 shadow-md">
+                    <span class="flex items-center">
+                        View All Data
+                    </span>
+                </label>
+
+                <div class="peer-checked:block hidden">
+                    ${hiddenHTML};
+                </div>
+
+
+            </div>
+        `
+
+        return (html + hiddenHTML);
+    }
+    
 });
