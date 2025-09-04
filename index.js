@@ -73,6 +73,7 @@ const pageObjects = {
     "attach": {wallet: true},
     "broadcast": {wallet: true},
     "cancel": {wallet: true},
+    "closedispenser": {wallet: true},
     "destroy": {wallet: true},
     "detach": {wallet: true},
     "dispense": {wallet: true},

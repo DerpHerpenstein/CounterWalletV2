@@ -265,7 +265,7 @@ class CounterpartyV2 {
         }
     }
 
-    static async dispenserOpenSatsPerVByte(sourceAddress, assetName, 
+    static async dispenserUpdateSatsPerVByte(sourceAddress, assetName, 
                                 giveQuantity, escrowQuantity, 
                                 ratePerGiveInSats, status,  satsPerVByte) {
         try {

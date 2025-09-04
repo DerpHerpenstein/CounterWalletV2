@@ -108,7 +108,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
 
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="dispenser"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center hidden">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
                         Create Dispenser
                 </button>
 
