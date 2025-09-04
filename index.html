@@ -18,7 +18,10 @@
     <!-- Header -->
     <header class="sticky top-0 z-50 glass-card border-b border-border-color py-4 px-6">
         <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+            <button id="sidebar-toggle" class="md:hidden bg-gray-800 text-white p-2 rounded-lg">
+                <i class="fas fa-bars"></i> Menu
+              </button>
+            <div class="flex items-center space-x-3 hidden md:flex text-text-secondary">
                 <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-accent-blue to-accent-purple flex items-center justify-center">
                     <i class="fas fa-coins text-white"></i>
                 </div>
@@ -40,7 +43,7 @@
     <!-- Main Content -->
     <div class="flex flex-1">
         <!-- Sidebar -->
-        <aside class="w-64 bg-dark-bg border-r border-border-color p-6 hidden md:block">
+        <aside id="sidebar" class="w-64 bg-dark-bg border-r border-border-color p-6 hidden md:block w-full sm:w-64 flex-shrink-0">
             <div class="mt-8">
                 <h2 class="text-text-secondary text-sm uppercase tracking-wider mb-4">Quick Actions</h2>
                 <div class="space-y-3">

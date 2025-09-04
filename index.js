@@ -138,6 +138,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 page.classList.remove('hidden');
             }
         });
+        // hide the sidebar if its not
+        document.getElementById('sidebar').classList.add('hidden');
     }
     
     txCards.forEach(card => {
@@ -223,6 +225,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (e.target === document.querySelector('.modal-overlay')) {
             generalModal.close();
         }
+    });
+
+    // open menu on the sidebar on mobile
+    document.getElementById('sidebar-toggle').addEventListener('click', () => {
+        document.getElementById('sidebar').classList.toggle('hidden');
     });
 
     // show toast
