@@ -190,6 +190,11 @@ import "./bitcoinjs-lib.min.js"
     
     // Close modal when clicking outside
     walletModal.addEventListener('click', async function(e) {
+
+        function showWalletAddress(addr) {
+            return `${addr.substring(0, 5)}...${addr.substring(addr.length - 4)}`;
+        }
+
         //console.log(e.target)
         if (e.target === walletModal) {
             walletModal.classList.remove('active');
@@ -201,7 +206,7 @@ import "./bitcoinjs-lib.min.js"
                 await walletProvider.connect();
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
-                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
                 window.currentPage = "myassets";
                 setActivePage(currentPage);
             }
@@ -216,7 +221,7 @@ import "./bitcoinjs-lib.min.js"
                 await walletProvider.connect();
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
-                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
                 window.currentPage = "myassets";
                 setActivePage(currentPage);
             }
@@ -230,7 +235,7 @@ import "./bitcoinjs-lib.min.js"
                 await walletProvider.connect();
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
-                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
                 window.currentPage = "myassets";
                 setActivePage(currentPage);
             }
@@ -249,7 +254,7 @@ import "./bitcoinjs-lib.min.js"
                 await walletProvider.connect(tmpAddress);
                 console.log(walletProvider);
                 walletModal.classList.remove('active');
-                document.getElementById('wallet-connect-text').innerText = walletProvider.walletAddress;
+                document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
                 window.currentPage = "myassets";
                 setActivePage(currentPage);
             }
