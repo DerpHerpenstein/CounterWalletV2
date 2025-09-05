@@ -57,6 +57,26 @@ class CounterpartyV2 {
         return asset_name
     }
 
+    static async getUtxos(walletAddress){
+        try {
+            let response = await this.callAPI(`bitcoin/addresses/${walletAddress}/utxos`, "", "");
+            return response;
+
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
+    static async getBitcoinTransaction(txHash){
+        try {
+            let response = await this.callAPI(`bitcoin/transactions/${txHash}`, "", "");
+            return response;
+
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+
     static async getLatestIssuances(page, pageSize = 100, filter='all') {
         page -=1;
         try {

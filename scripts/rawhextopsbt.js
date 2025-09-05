@@ -8,7 +8,7 @@ bitcoin.initEccLib(ecc);
 window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
   try {
     // Parse raw hex transaction
-    console.log(bitcoin.default);
+    //console.log(bitcoin.default);
     const tx = bitcoin.Transaction.fromHex(rawHex);
     const psbt = new bitcoin.Psbt();
 
@@ -39,7 +39,7 @@ window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
         }
       } else {
         // Legacy: Add non-witness UTXO (full previous transaction)
-        inputData.nonWitnessUtxo = Buffer.from(previousTxHex[index]); // Replace with actual previous tx hex
+        inputData.nonWitnessUtxo = Buffer.from(previousTxHex[index],'hex'); // Replace with actual previous tx hex
       }
 
       psbt.addInput(inputData);
