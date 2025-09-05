@@ -85,11 +85,18 @@ const pageObjects = {
     "mpma": {wallet: true},
     "order": {wallet: true},
     "send": {wallet: true},
-    "sweep": {wallet: true}
+    "sweep": {wallet: true},
+    "userdispensers": {wallet: false}
 }
 
 const pageNames = Object.keys(pageObjects);
 window.currentPage = "disclaimer";
+
+// on page load get URL params
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get("page") == "userdispensers"){
+    window.currentPage = "userdispensers"
+}
 
 const loadPage = async (pageName) =>  {
     const pageUrl = "./pages/" + pageName + ".html";
@@ -124,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const txCards = document.querySelectorAll('.tx-card');
     const mainContentPages = document.querySelectorAll('.main-content');
     
-    window.setActivePage = (type) => {
+    window.setActivePage = (type, clean=true) => {
         txCards.forEach(card => {
             card.classList.remove('active');
             if (card.dataset.type === type) {
@@ -140,6 +147,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
         // hide the sidebar if its not
         document.getElementById('sidebar').classList.add('hidden');
+
+        // clean url when changing pages
+        if(clean){
+            const cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, '', cleanUrl);
+        }
     }
     
     txCards.forEach(card => {
@@ -162,8 +175,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     });
 
-    // Initialize with Send as active
-    setActivePage(currentPage);
+    // Initialize current page without resetting the url
+    setActivePage(currentPage, false);
 
 
     // general modal
@@ -353,7 +366,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     window.copyToClipboard = function(button) {
         const originalHTML = button.innerHTML;
         
-        navigator.clipboard.writeText(walletProvider.walletAddress)
+        navigator.clipboard.writeText(button.dataset.copydata)
             .then(() => {
                 button.innerHTML = '<i class="fas fa-check"></i> Copied!';
                 

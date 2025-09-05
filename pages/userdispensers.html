@@ -1,0 +1,56 @@
+<div class="container mx-auto max-w-4xl">
+    <!-- Content Header -->
+    <div class="mb-8">
+        <div id="userdispensers-create-section" class="hidden glass-card rounded-xl p-6 mb-8">
+
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-2">Create Dispenser List</h2>
+                <p class="text-text-secondary">Create a list of dispensers to easily share via a link</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-text-secondary text-sm mb-2">Title</label>
+                    <div class="flex space-x-2">
+                        <textarea id="userdispensers-create-title" type="text" rows="2" cols="50" placeholder="My Title" 
+                                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-text-secondary text-sm mb-2">Subtitle</label>
+                    <div class="flex space-x-2">
+                        <textarea id="userdispensers-create-subtitle" type="text" rows="2" cols="50" placeholder="My Subtitle" 
+                                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"></textarea>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-text-secondary text-sm mb-2">Dispenser Addresses</label>
+                    <div class="flex space-x-2">
+                        <textarea id="userdispensers-dispenser-addresses" type="text" rows="4" cols="50" placeholder="bc1q59gtzzwf5mdqar0srrr7xfkvy5l643lydnw9re,bc1q59gtzzwf5mdqar0srrr7xfkvy5l643lydnw9re" 
+                                class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"></textarea>
+                    </div>
+                </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-4 pt-4 border-t border-border-color justify-end">
+                <button id="userdispensers-create-btn" class="userdispensers-create-btn btn-primary px-6 py-3 rounded-lg flex">
+                    <i class="fas fa-paper-plane mr-2"></i> Create Dispenser List
+                </button>
+            </div>
+        </div>
+
+        <div id="userdispensers-buy-section" class="hidden">
+            <h2 id="userdispensers-title" class="text-2xl font-bold mb-2">TITLE</h2>
+            <p id="userdispensers-subtitle"  class="text-text-secondary">subtitle</p>
+            <div class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                <p class="text-gray-700">
+                    Dispenser can be front run<br>Ensure you are buying from a <b><u>trusted source!</u></b><br>Check the quantities before buying!<br>Buy are your own risk!
+                </p>
+            </div>
+            <!-- Asset Grid -->
+            <div id="userdispensers-dispenser-data" class="py-3 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+            </div>
+        </div>
+    </div>
+</div>

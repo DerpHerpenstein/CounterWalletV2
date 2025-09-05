@@ -221,6 +221,8 @@ import Buffer from "./buffer.min.js"
                 walletModal.classList.add('active');
             }
             else{
+                // put the copy info into the button
+                document.getElementById('wallet-dropdown-copy-btn').setAttribute('data-copydata', walletProvider.walletAddress);
                 document.getElementById('wallet-dropdown').classList.toggle('hidden');
             }
         });
@@ -251,8 +253,7 @@ import Buffer from "./buffer.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
-                window.currentPage = "myassets";
-                setActivePage(currentPage);
+                setActivePage(currentPage, false);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -266,8 +267,7 @@ import Buffer from "./buffer.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
-                window.currentPage = "myassets";
-                setActivePage(currentPage);
+                setActivePage(currentPage, false);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -280,8 +280,7 @@ import Buffer from "./buffer.min.js"
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
-                window.currentPage = "myassets";
-                setActivePage(currentPage);
+                setActivePage(currentPage, false);
             }
             catch(e){
                 window.generalModal.openError("Error connecting wallet", e);
@@ -299,8 +298,7 @@ import Buffer from "./buffer.min.js"
                 console.log(walletProvider);
                 walletModal.classList.remove('active');
                 document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
-                window.currentPage = "myassets";
-                setActivePage(currentPage);
+                setActivePage(currentPage, false);
             }
             catch(e){
                 generalModal.openError("Wallet connect error", e);
