@@ -7,14 +7,11 @@ function generateAssetPreview(asset, descriptionId) {
     return `
         <div class="flex-1">
             <h3 class="font-semibold text-lg">${window.escapeHtml(asset.asset)}</h3>
+                <span class="text-text-primary font-small">Quantity: ${window.escapeHtml(asset.total)}</span>
+                <span class="text-text-primary font-small">${asset.asset_info.locked ? "Locked" : "Unlocked"}</span>
+                <span class="text-text-primary font-small">${asset.asset_info.divisible ? "Divisible": ""}</span>
             ${descriptionId ? `<p id="${descriptionId}" class="max-w-xl overflow-wrap-anywhere text-text-secondary text-sm mt-1"></p>`: ""}
-            <div class="mt-3">
-                <span class="text-text-primary font-medium">Locked: ${window.escapeHtml(asset.asset_info.locked)}</span>
-            </div>
-            <div class="mt-3">
-                <span class="text-text-primary font-medium">Quantity: ${window.escapeHtml(asset.total)}</span>
-                <span class="text-text-primary font-medium">Divisible: ${window.escapeHtml(asset.asset_info.divisible)}</span>
-            </div>
+
         </div>
     `
 }
@@ -29,20 +26,21 @@ document.getElementById('main').addEventListener('click', async function(event) 
             document.getElementById('myassets-asset-data').innerHTML += 
                 `<div class="asset-card glass-card rounded-xl overflow-hidden border border-border-color relative">
                     <div class="p-2">
-                        <div class="flex items-start space-x-4">
+                        <div class="flex flex-col sm:flex-row items-start">
                             ${generateAssetPreview(myAssetsData[i], descriptionId)}
-                            <div class="flex flex-col space-y-3 ml-4">
-                                <button data-asset="${window.escapeHtml(myAssetsData[i].asset)}" 
-                                        data-url="${isStamp ? "https://stampverse.io/stamp/" + window.escapeHtml(myAssetsData[i].asset) 
-                                            : "https://horizon.market/assets/" + window.escapeHtml(myAssetsData[i].asset)}" 
-                                        class="myassets-open-explorer-btn btn-secondary px-6 py-3 rounded-lg flex items-center justify-center">
-                                    View on ${isStamp ? "Stampverse.io" : "Horizon.market"}
-                                </button>
-                                <button data-asset="${window.escapeHtml(myAssetsData[i].asset)}"
-                                    class="myassets-actions-btn btn-primary px-6 py-3 rounded-lg flex items-center justify-center">
-                                    Actions
-                                </button>
-                            </div>
+                        </div>
+                        
+                        <div class="mt-4 flex gap-3">
+                            <button data-asset="${window.escapeHtml(myAssetsData[i].asset)}" 
+                                    data-url="${isStamp ? "https://stampverse.io/stamp/" + window.escapeHtml(myAssetsData[i].asset) 
+                                        : "https://horizon.market/assets/" + window.escapeHtml(myAssetsData[i].asset)}" 
+                                    class="myassets-open-explorer-btn btn-secondary px-3 py-1 rounded-lg flex items-center justify-center">
+                                View on ${isStamp ? "Stampverse.io" : "Horizon.market"}
+                            </button>
+                            <button data-asset="${window.escapeHtml(myAssetsData[i].asset)}"
+                                class="myassets-actions-btn btn-primary px-3 py-1 rounded-lg flex items-center justify-center">
+                                Actions
+                            </button>
                         </div>
                     </div>
                 </div>`
@@ -76,39 +74,39 @@ document.getElementById('main').addEventListener('click', async function(event) 
             <div class="grid grid-cols-2 gap-4">
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="send"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Send
                 </button>
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="mpma"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         MPMA
                 </button>
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="airdrop"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Airdrop
                 </button>
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="destroy"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Destroy
                 </button>
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="dividend"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Issue Dividend
                 </button>
 
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="order"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Create Dex Order
                 </button>
 
                 <button data-asset="${event.target.dataset.asset}"
                         data-page="dispenser"
-                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-3 rounded-lg flex items-center justify-center">
+                        class="myassets-actions-page-btn btn-primary px-6 py-3 my-1 rounded-lg flex items-center justify-center">
                         Create Dispenser
                 </button>
 
