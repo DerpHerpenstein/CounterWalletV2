@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     window.generatePropertyDisplayHtml = function (containerId, data, subsetKeys = []) {
 
         // Create grid layout with two columns
-        let html = `<div class="grid grid-cols-2 gap-6">`;
+        let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-2">`;
             
         let hiddenHTML = ``;
             
