@@ -350,4 +350,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         return (html + hiddenHTML);
     }
     
+    window.copyToClipboard = function(button) {
+        const originalHTML = button.innerHTML;
+        
+        navigator.clipboard.writeText(walletProvider.walletAddress)
+            .then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                }, 3000);
+            })
+            .catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+    }
 });

@@ -33,12 +33,29 @@
             </div>
             
             <div class="flex items-center space-x-4">
-                <button id="wallet-connect-btn" class="wallet-connect-btn px-4 py-2 rounded-lg flex items-center space-x-2">
-                    <i class="fas fa-wallet text-success"></i>
-                    <span id="wallet-connect-text">Connect Wallet</span>
-                </button>
-                <div class="w-10 h-10 rounded-full bg-card-bg border border-border-color flex items-center justify-center">
-                    <i class="fas fa-user text-text-secondary"></i>
+                <div class="relative inline-block">
+                    <button id="wallet-connect-btn" class="wallet-connect-btn px-4 py-2 rounded-lg flex items-center space-x-2">
+                        <i class="fas fa-wallet text-success"></i>
+                        <span id="wallet-connect-text">Connect Wallet</span>
+                    </button>
+
+                    <div id="wallet-dropdown" class="absolute left-0 mt-2 w-full min-w-[200px] bg-dark-bg border border-border-color rounded-lg shadow-xl z-10 hidden">
+                        <div class="py-2">
+                            <button class="block w-full text-left px-4 py-3 hover:bg-card-bg transition-colors" 
+                            onclick="copyToClipboard(this); return false;"">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-wallet"></i>
+                                    <span>Copy Address</span>
+                                </div>
+                            </button>
+                            <button class="block w-full text-left px-4 py-3 hover:bg-card-bg transition-colors">
+                                <a class="flex items-center space-x-2" href="javascript:void(0)" onclick="location.reload();">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    <span>Log out</span>
+                                </a>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

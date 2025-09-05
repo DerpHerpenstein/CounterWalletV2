@@ -178,9 +178,13 @@ import "./bitcoinjs-lib.min.js"
     
     if (walletBtn) {
         walletBtn.addEventListener('click', function() {
-            // if we arent logged in, the wallet button should work
-            if(walletProvider === null)
+            // if we arent logged in, the wallet modal shouldnt open
+            if(walletProvider === null){
                 walletModal.classList.add('active');
+            }
+            else{
+                document.getElementById('wallet-dropdown').classList.toggle('hidden');
+            }
         });
     }
     
