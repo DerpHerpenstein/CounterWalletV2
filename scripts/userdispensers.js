@@ -42,7 +42,7 @@ const updateUserDispensers = async () => {
     }
 }
 // if we have a dispenser list, show it
-if(dispenserAddresses.length > 1){
+if(dispenserAddresses.length > 0){
     document.getElementById('userdispensers-buy-section').classList.remove("hidden");
     updateUserDispensers();
 }
@@ -95,7 +95,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
         }
 
         const params = new URLSearchParams(paramsObj);
-        const urlWithParams = window.location.origin + "?" + params.toString();
+        const urlWithParams = window.location.origin + window.location.pathname + "?" + params.toString();
         
         console.log(urlWithParams);
         window.generalModal.openNoButtons(`
