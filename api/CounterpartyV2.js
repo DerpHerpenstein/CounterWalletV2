@@ -406,7 +406,7 @@ class CounterpartyV2 {
     static async dividendSatsPerVByte(sourceAddress, quantityPerUnit, assetName, 
                         dividendAssetName, satsPerVByte) {
         try {
-            quantity_per_unit = await this.normalizeToSatsIfNeeded(dividendAssetNamessetName, quantity_per_unit);
+            quantityPerUnit = await this.normalizeToSatsIfNeeded(dividendAssetName, quantityPerUnit);
             let payloadObject = {
                 quantity_per_unit:quantityPerUnit,
                 asset:assetName,
