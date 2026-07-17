@@ -67,6 +67,7 @@ const pageObjects = {
     "recent": {wallet: false},
     "explore": {wallet: false},
     "disclaimer": {wallet: false},
+    "asset": {wallet: false},
 
     "myassets": {wallet: true},
     // pages that do
@@ -95,8 +96,16 @@ window.currentPage = "disclaimer";
 
 // on page load get URL params
 const urlParams = new URLSearchParams(window.location.search);
-if(urlParams.get("page") == "userdispensers"){
-    window.currentPage = "userdispensers"
+const pageParam = urlParams.get("page");
+const assetParam = urlParams.get("asset");
+
+if (pageParam === "userdispensers") {
+    window.currentPage = "userdispensers";
+} else if (pageParam === "asset" || assetParam) {
+    if (assetParam) {
+        window.dataStore.viewAsset = assetParam;
+    }
+    window.currentPage = "asset";
 }
 
 const loadPage = async (pageName) =>  {
@@ -150,6 +159,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
                 else if (type === 'explore' && typeof window.initExplore === 'function') {
                     window.initExplore();
+                }
+                else if (type === 'asset' && typeof window.initAsset === 'function') {
+                    window.initAsset();
                 }
             }
         });

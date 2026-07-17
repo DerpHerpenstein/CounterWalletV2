@@ -1,6 +1,6 @@
 <div class="container mx-auto max-w-6xl">
     <!-- Page Header -->
-    <div class="mb-8 flex justify-between items-end">
+    <div class="mb-6 flex justify-between items-end">
         <div>
             <h2 class="text-3xl font-bold text-text-primary">Explore</h2>
             <p class="text-text-secondary mt-1">Browse the latest asset issuances on Counterparty</p>
@@ -8,6 +8,20 @@
         <div id="explore-stats" class="text-right text-sm text-text-secondary hidden">
             <span id="explore-count" class="font-mono"></span> issuances
         </div>
+    </div>
+
+    <!-- Asset Search -->
+    <div class="mb-8">
+        <div class="flex gap-2">
+            <input id="explore-search-input" type="text" placeholder="Search for an asset (e.g. PEPE)" 
+                   class="input-field flex-1 px-4 py-3 rounded-2xl focus:outline-none">
+            <button id="explore-search-btn" 
+                    class="btn-primary px-6 py-3 rounded-2xl flex items-center justify-center hover:scale-105 transition-all"
+                    title="Find Asset">
+                <i class="fas fa-search text-lg"></i>
+            </button>
+        </div>
+        <p class="text-xs text-text-secondary mt-1.5 ml-1">Find asset by name</p>
     </div>
 
     <!-- Loading State -->

@@ -156,31 +156,6 @@ async function loadIssuances(reset = false) {
     }
 }
 
-// Auto-load when page becomes active
-function initExplore() {
-    const assetDataContainer = document.getElementById('explore-asset-data');
-    if (!assetDataContainer) return;
-    
-    // Clear previous state
-    exploreData = [];
-    page = 1;
-    hasMore = true;
-    isLoading = false;
-    
-    const emptyEl = document.getElementById('explore-empty');
-    const statsEl = document.getElementById('explore-stats');
-    const loadMoreContainer = document.getElementById('explore-load-more-container');
-    
-    if (emptyEl) emptyEl.classList.add('hidden');
-    if (statsEl) statsEl.classList.add('hidden');
-    if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
-    
-    // Trigger initial load
-    setTimeout(() => {
-        loadIssuances(true);
-    }, 100);
-}
-
 // Main event delegation for explore page
 document.getElementById('main').addEventListener('click', function(event) {
     // Handle load more button
@@ -200,6 +175,85 @@ document.getElementById('main').addEventListener('click', function(event) {
         return;
     }
 });
+
+// Search for asset by name (used by explore search bar)
+async function searchForAsset() {
+    const input = document.getElementById('explore-search-input');
+    if (!input) return;
+    const assetName = (input.value || '').trim();
+    if (!assetName) return;
+
+    try {
+        await CounterpartyV2.getAsset(assetName);
+        // Asset exists: store name and navigate to asset page
+        window.dataStore.viewAsset = assetName;
+        if (typeof window.setActivePage === 'function') {
+            window.setActivePage('asset');
+        }
+    } catch (e) {
+        // Asset does not exist or API error
+        if (typeof generalModal !== 'undefined' && generalModal.openError) {
+            generalModal.openError("Asset Not Found", `The asset "${assetName}" does not exist.`);
+        } else {
+            console.error('Asset search failed:', e);
+        }
+    }
+}
+
+// Attach search input/button listeners (idempotent)
+let exploreSearchAttached = false;
+function attachExploreSearchListeners() {
+    if (exploreSearchAttached) return;
+
+    const searchBtn = document.getElementById('explore-search-btn');
+    const searchInput = document.getElementById('explore-search-input');
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            searchForAsset();
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchForAsset();
+            }
+        });
+    }
+
+    exploreSearchAttached = true;
+}
+
+// Auto-load when page becomes active
+function initExplore() {
+    const assetDataContainer = document.getElementById('explore-asset-data');
+    if (!assetDataContainer) return;
+    
+    // Clear previous state
+    exploreData = [];
+    page = 1;
+    hasMore = true;
+    isLoading = false;
+    
+    const emptyEl = document.getElementById('explore-empty');
+    const statsEl = document.getElementById('explore-stats');
+    const loadMoreContainer = document.getElementById('explore-load-more-container');
+    
+    if (emptyEl) emptyEl.classList.add('hidden');
+    if (statsEl) statsEl.classList.add('hidden');
+    if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
+    
+    // Attach search listeners (safe on re-init)
+    attachExploreSearchListeners();
+    
+    // Trigger initial load
+    setTimeout(() => {
+        loadIssuances(true);
+    }, 100);
+}
 
 // Make init function available globally so index.js can call it when page activates
 window.initExplore = initExplore;
