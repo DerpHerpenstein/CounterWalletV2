@@ -155,7 +155,7 @@ async function loadAssets(reset = false) {
             errorMessageEl.textContent = e.message || e || 'An error occurred while loading assets.';
         }
         document.getElementById('myassets-error').classList.remove('hidden');
-        document.getElementById('myassets-load-more-container').classList.add('hidden');
+        document.getElementById('myassets-load-more-container').classList.remove('hidden');
     } finally {
         isLoading = false;
         loadingEl.classList.add('hidden');

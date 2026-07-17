@@ -154,7 +154,7 @@ async function loadIssuances(reset = false) {
             errorMessageEl.textContent = e.message || e || 'An error occurred while loading issuances.';
         }
         document.getElementById('explore-error').classList.remove('hidden');
-        document.getElementById('explore-load-more-container').classList.add('hidden');
+        document.getElementById('explore-load-more-container').classList.remove('hidden');
     } finally {
         isLoading = false;
         if (loadingEl) loadingEl.classList.add('hidden');
