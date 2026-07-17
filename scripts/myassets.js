@@ -89,6 +89,9 @@ function updateMyAssets() {
     const container = document.getElementById('myassets-asset-data');
     container.innerHTML = '';
     
+    // Hide error state when data loads
+    document.getElementById('myassets-error').classList.add('hidden');
+    
     if (myAssetsData.length === 0) {
         document.getElementById('myassets-empty').classList.remove('hidden');
         document.getElementById('myassets-load-more-container').classList.add('hidden');
@@ -147,7 +150,12 @@ async function loadAssets(reset = false) {
         
     } catch (e) {
         console.error(e);
-        generalModal.openError("Failed to load assets", e.message || e);
+        const errorMessageEl = document.getElementById('myassets-error-message');
+        if (errorMessageEl) {
+            errorMessageEl.textContent = e.message || e || 'An error occurred while loading assets.';
+        }
+        document.getElementById('myassets-error').classList.remove('hidden');
+        document.getElementById('myassets-load-more-container').classList.add('hidden');
     } finally {
         isLoading = false;
         loadingEl.classList.add('hidden');
@@ -166,6 +174,8 @@ function initMyAssets() {
     isLoading = false;
     
     document.getElementById('myassets-empty').classList.add('hidden');
+    const errorEl = document.getElementById('myassets-error');
+    if (errorEl) errorEl.classList.add('hidden');
     document.getElementById('myassets-stats').classList.add('hidden');
     document.getElementById('myassets-load-more-container').classList.add('hidden');
     
@@ -178,9 +188,16 @@ function initMyAssets() {
 // Main event delegation
 document.getElementById('main').addEventListener('click', async function(event) {
     // Handle load more button
-    if (event.target.id === 'myassets-load-more-btn' || 
+    if (event.target.id === 'myassets-load-more-btn' ||
         event.target.closest('#myassets-load-more-btn')) {
         loadAssets(false);
+        return;
+    }
+    
+    // Handle retry button
+    if (event.target.id === 'myassets-retry-btn' ||
+        event.target.closest('#myassets-retry-btn')) {
+        loadAssets(true);
         return;
     }
     

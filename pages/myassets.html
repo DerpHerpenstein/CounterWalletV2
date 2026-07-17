@@ -24,10 +24,24 @@
         </div>
         <h3 class="text-xl font-semibold text-text-primary mb-2">No Assets Found</h3>
         <p class="text-text-secondary max-w-xs">You don't have any assets in this wallet yet. Create or receive some to get started.</p>
-        <button onclick="setActivePage('issuance')" 
+        <button onclick="setActivePage('issuance')"
                 class="mt-6 btn-primary px-6 py-3 rounded-xl flex items-center gap-2">
             <i class="fas fa-plus"></i>
             Issue New Asset
+        </button>
+    </div>
+
+    <!-- Error State -->
+    <div id="myassets-error" class="hidden flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-20 h-20 bg-red-500/10 rounded-2xl flex items-center justify-center mb-6">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary mb-2">Failed to Load Assets</h3>
+        <p class="text-text-secondary max-w-xs mb-6" id="myassets-error-message">An error occurred while loading your assets.</p>
+        <button id="myassets-retry-btn"
+                class="btn-primary px-6 py-3 rounded-2xl flex items-center gap-2 hover:scale-105 transition-all">
+            <i class="fas fa-redo"></i>
+            <span>Retry</span>
         </button>
     </div>
 

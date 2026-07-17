@@ -39,6 +39,20 @@
         <p class="text-text-secondary max-w-xs">We couldn't find any recent issuances. Try again later.</p>
     </div>
 
+    <!-- Error State -->
+    <div id="explore-error" class="hidden flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-20 h-20 bg-red-500/10 rounded-2xl flex items-center justify-center mb-6">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary mb-2">Failed to Load Issuances</h3>
+        <p class="text-text-secondary max-w-xs mb-6" id="explore-error-message">An error occurred while loading issuances.</p>
+        <button id="explore-retry-btn"
+                class="btn-primary px-6 py-3 rounded-2xl flex items-center gap-2 hover:scale-105 transition-all">
+            <i class="fas fa-redo"></i>
+            <span>Retry</span>
+        </button>
+    </div>
+
     <!-- Issuance Grid -->
     <div id="explore-asset-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     </div>

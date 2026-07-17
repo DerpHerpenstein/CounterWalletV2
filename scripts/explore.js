@@ -88,6 +88,9 @@ function updateExplore() {
     if (!container) return;
     container.innerHTML = '';
     
+    // Hide error state when data loads
+    document.getElementById('explore-error').classList.add('hidden');
+    
     if (exploreData.length === 0) {
         document.getElementById('explore-empty').classList.remove('hidden');
         document.getElementById('explore-load-more-container').classList.add('hidden');
@@ -146,9 +149,12 @@ async function loadIssuances(reset = false) {
         
     } catch (e) {
         console.error(e);
-        if (typeof generalModal !== 'undefined' && generalModal.openError) {
-            generalModal.openError("Failed to load issuances", e.message || e);
+        const errorMessageEl = document.getElementById('explore-error-message');
+        if (errorMessageEl) {
+            errorMessageEl.textContent = e.message || e || 'An error occurred while loading issuances.';
         }
+        document.getElementById('explore-error').classList.remove('hidden');
+        document.getElementById('explore-load-more-container').classList.add('hidden');
     } finally {
         isLoading = false;
         if (loadingEl) loadingEl.classList.add('hidden');
@@ -158,9 +164,16 @@ async function loadIssuances(reset = false) {
 // Main event delegation for explore page
 document.getElementById('main').addEventListener('click', function(event) {
     // Handle load more button
-    if (event.target.id === 'explore-load-more-btn' || 
+    if (event.target.id === 'explore-load-more-btn' ||
         event.target.closest('#explore-load-more-btn')) {
         loadIssuances(false);
+        return;
+    }
+    
+    // Handle retry button
+    if (event.target.id === 'explore-retry-btn' ||
+        event.target.closest('#explore-retry-btn')) {
+        loadIssuances(true);
         return;
     }
     
@@ -242,10 +255,12 @@ function initExplore() {
     isLoading = false;
     
     const emptyEl = document.getElementById('explore-empty');
+    const errorEl = document.getElementById('explore-error');
     const statsEl = document.getElementById('explore-stats');
     const loadMoreContainer = document.getElementById('explore-load-more-container');
     
     if (emptyEl) emptyEl.classList.add('hidden');
+    if (errorEl) errorEl.classList.add('hidden');
     if (statsEl) statsEl.classList.add('hidden');
     if (loadMoreContainer) loadMoreContainer.classList.add('hidden');
     
