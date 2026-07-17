@@ -176,3 +176,48 @@ body {
   .animate-fadeOut {
     animation: fadeOut 0.3s ease-in;
   }
+
+/* My Assets - Enhanced Gallery Styles */
+.asset-card {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+.asset-card img {
+    image-rendering: crisp-edges;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+#myassets-asset-data {
+    min-height: 400px;
+}
+
+#myassets-loading .animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Improve button styles for asset cards */
+.myassets-open-explorer-btn,
+.myassets-actions-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.myassets-open-explorer-btn:hover {
+    background-color: rgba(51, 65, 85, 0.6) !important;
+    border-color: #64748b;
+}
+
+.myassets-actions-btn:hover {
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+}

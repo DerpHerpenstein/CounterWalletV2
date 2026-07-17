@@ -143,6 +143,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             page.classList.add('hidden');
             if (page.dataset.type === type) {
                 page.classList.remove('hidden');
+                // Call page-specific initialization if available (e.g. auto-load assets)
+                if (type === 'myassets' && typeof window.initMyAssets === 'function') {
+                    window.initMyAssets();
+                }
             }
         });
         // hide the sidebar if its not

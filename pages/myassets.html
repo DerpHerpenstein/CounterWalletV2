@@ -1,17 +1,50 @@
 <div class="container mx-auto max-w-6xl">
     <!-- Page Header -->
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold text-text-primary">Your Assets</h2>
-        <p class="text-text-secondary mt-2">Manage and interact with your digital assets</p>
+    <div class="mb-8 flex justify-between items-end">
+        <div>
+            <h2 class="text-3xl font-bold text-text-primary">Your Assets</h2>
+            <p class="text-text-secondary mt-1">Manage and interact with your digital assets on Counterparty</p>
+        </div>
+        <div id="myassets-stats" class="text-right text-sm text-text-secondary hidden">
+            <span id="myassets-count" class="font-mono"></span> assets • 
+            <span id="myassets-total-value" class="font-mono"></span>
+        </div>
     </div>
-    
+
+    <!-- Loading State -->
+    <div id="myassets-loading" class="hidden flex flex-col items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-text-secondary">Loading your assets...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="myassets-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-20 h-20 bg-card-bg rounded-2xl flex items-center justify-center mb-6">
+            <i class="fas fa-coins text-4xl text-text-secondary"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary mb-2">No Assets Found</h3>
+        <p class="text-text-secondary max-w-xs">You don't have any assets in this wallet yet. Create or receive some to get started.</p>
+        <button onclick="setActivePage('issuance')" 
+                class="mt-6 btn-primary px-6 py-3 rounded-xl flex items-center gap-2">
+            <i class="fas fa-plus"></i>
+            Issue New Asset
+        </button>
+    </div>
+
     <!-- Asset Grid -->
-    <div id="myassets-asset-data" class="py-3 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+    <div id="myassets-asset-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     </div>
 
-    <button id="myassets-load-assets-btn" class="btn-primary px-6 py-3 rounded-lg flex items-center justify-center">
-        Load Assets
-    </button>
+    <!-- Load More -->
+    <div id="myassets-load-more-container" class="flex justify-center mt-10 hidden">
+        <button id="myassets-load-more-btn" 
+                class="btn-primary px-8 py-3 rounded-2xl flex items-center gap-3 hover:scale-105 transition-all">
+            <span>Load More Assets</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
 
-    
+    <div class="text-center text-xs text-text-secondary mt-8">
+        Images powered by <a href="https://cdn.xcp.io" target="_blank" class="hover:text-accent-blue">cdn.xcp.io</a>
+    </div>
 </div>
