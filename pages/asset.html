@@ -1,13 +1,4 @@
 <div class="container mx-auto max-w-4xl">
-    <!-- Header -->
-    <div class="mb-6 flex items-center gap-3">
-        <button id="asset-back-btn" 
-                class="btn-secondary px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-white/5 transition-colors">
-            <i class="fas fa-arrow-left"></i>
-            <span>Back to Explore</span>
-        </button>
-    </div>
-
     <!-- Loading State -->
     <div id="asset-loading" class="hidden flex flex-col items-center justify-center py-20">
         <div class="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -21,11 +12,6 @@
         </div>
         <h3 class="text-xl font-semibold text-text-primary mb-2">Asset Not Found</h3>
         <p id="asset-error-message" class="text-text-secondary max-w-xs">We couldn't find that asset on the Counterparty network.</p>
-        <button onclick="setActivePage('explore')" 
-                class="mt-6 btn-primary px-6 py-3 rounded-xl flex items-center gap-2">
-            <i class="fas fa-compass"></i>
-            <span>Back to Explore</span>
-        </button>
     </div>
 
     <!-- Asset Detail -->

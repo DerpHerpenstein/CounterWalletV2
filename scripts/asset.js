@@ -183,20 +183,6 @@ async function fetchAndRender(assetName) {
     }
 }
 
-function attachBackButton() {
-    const backBtn = document.getElementById('asset-back-btn');
-    if (backBtn) {
-        // Remove previous listeners by cloning
-        const newBtn = backBtn.cloneNode(true);
-        backBtn.parentNode.replaceChild(newBtn, backBtn);
-        newBtn.addEventListener('click', () => {
-            if (typeof window.setActivePage === 'function') {
-                window.setActivePage('explore');
-            }
-        });
-    }
-}
-
 function attachQuickActions(assetName) {
     const container = document.getElementById('asset-quick-actions');
     if (!container) return;
@@ -229,8 +215,6 @@ function attachQuickActions(assetName) {
 }
 
 function initAsset() {
-    attachBackButton();
-
     // Determine asset name: prefer URL param (already handled in index.js), then dataStore
     let assetName = window.dataStore && window.dataStore.viewAsset;
 
