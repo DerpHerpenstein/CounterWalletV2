@@ -70,8 +70,7 @@ function createAssetCard(asset) {
                 <!-- Actions -->
                 <div class="flex gap-3 pt-4 border-t border-border-color mt-auto">
                     <button data-asset="${assetName}" 
-                            data-url="${explorerUrl}" 
-                            class="myassets-open-explorer-btn flex-1 btn-secondary text-sm py-2.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/5 transition-colors">
+                            class="myassets-view-asset-btn flex-1 btn-secondary text-sm py-2.5 rounded-2xl flex items-center justify-center gap-2 hover:bg-white/5 transition-colors">
                         <i class="fas fa-external-link-alt text-xs"></i>
                         <span class="font-medium">Explore</span>
                     </button>
@@ -185,11 +184,17 @@ document.getElementById('main').addEventListener('click', async function(event) 
         return;
     }
     
-    // Explorer buttons
-    if (event.target.classList.contains('myassets-open-explorer-btn') || 
-        event.target.closest('.myassets-open-explorer-btn')) {
-        const btn = event.target.closest('.myassets-open-explorer-btn') || event.target;
-        window.open(btn.dataset.url, '_blank');
+    // View Asset buttons (opens internal asset detail page)
+    if (event.target.classList.contains('myassets-view-asset-btn') || 
+        event.target.closest('.myassets-view-asset-btn')) {
+        const btn = event.target.closest('.myassets-view-asset-btn') || event.target;
+        const assetName = btn.dataset.asset;
+        if (assetName) {
+            window.dataStore.viewAsset = assetName;
+            if (typeof window.setActivePage === 'function') {
+                window.setActivePage('asset');
+            }
+        }
         return;
     }
     
