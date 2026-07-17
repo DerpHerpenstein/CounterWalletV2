@@ -1,0 +1,44 @@
+<div class="container mx-auto max-w-6xl">
+    <!-- Page Header -->
+    <div class="mb-8 flex justify-between items-end">
+        <div>
+            <h2 class="text-3xl font-bold text-text-primary">Explore</h2>
+            <p class="text-text-secondary mt-1">Browse the latest asset issuances on Counterparty</p>
+        </div>
+        <div id="explore-stats" class="text-right text-sm text-text-secondary hidden">
+            <span id="explore-count" class="font-mono"></span> issuances
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="explore-loading" class="hidden flex flex-col items-center justify-center py-20">
+        <div class="w-12 h-12 border-4 border-accent-blue border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-text-secondary">Loading latest issuances...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="explore-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-20 h-20 bg-card-bg rounded-2xl flex items-center justify-center mb-6">
+            <i class="fas fa-compass text-4xl text-text-secondary"></i>
+        </div>
+        <h3 class="text-xl font-semibold text-text-primary mb-2">No Issuances Found</h3>
+        <p class="text-text-secondary max-w-xs">We couldn't find any recent issuances. Try again later.</p>
+    </div>
+
+    <!-- Issuance Grid -->
+    <div id="explore-asset-data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    </div>
+
+    <!-- Load More -->
+    <div id="explore-load-more-container" class="flex justify-center mt-10 hidden">
+        <button id="explore-load-more-btn" 
+                class="btn-primary px-8 py-3 rounded-2xl flex items-center gap-3 hover:scale-105 transition-all">
+            <span>Load More Issuances</span>
+            <i class="fas fa-chevron-down"></i>
+        </button>
+    </div>
+
+    <div class="text-center text-xs text-text-secondary mt-8">
+        Images powered by <a href="https://cdn.xcp.io" target="_blank" class="hover:text-accent-blue">cdn.xcp.io</a>
+    </div>
+</div>

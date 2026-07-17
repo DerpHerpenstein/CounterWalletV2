@@ -221,3 +221,12 @@ body {
 .myassets-actions-btn:hover {
     box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
 }
+
+/* Explore page styles (reuses .asset-card) */
+#explore-asset-data {
+    min-height: 400px;
+}
+
+#explore-loading .animate-spin {
+    animation: spin 1s linear infinite;
+}

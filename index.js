@@ -65,6 +65,7 @@ const pageObjects = {
     // pages that dont need wallet
     "balances": {wallet: false},
     "recent": {wallet: false},
+    "explore": {wallet: false},
     "disclaimer": {wallet: false},
 
     "myassets": {wallet: true},
@@ -146,6 +147,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 // Call page-specific initialization if available (e.g. auto-load assets)
                 if (type === 'myassets' && typeof window.initMyAssets === 'function') {
                     window.initMyAssets();
+                }
+                else if (type === 'explore' && typeof window.initExplore === 'function') {
+                    window.initExplore();
                 }
             }
         });
