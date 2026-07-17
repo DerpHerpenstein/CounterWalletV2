@@ -12,6 +12,7 @@ function getFallbackImage() {
 window.getAssetFallbackImage = getFallbackImage;
 
 let currentAssetData = null;
+let userOwnsAsset = false;
 
 function showLoading() {
     const loading = document.getElementById('asset-loading');
@@ -132,10 +133,10 @@ function renderAsset(asset) {
     // Explorer link
     setExplorerLink(name, description);
 
-    // Quick actions visibility
+    // Quick actions visibility - only if user owns the asset
     const actionsContainer = document.getElementById('asset-quick-actions');
     if (actionsContainer) {
-        if (window.walletProvider && window.walletProvider.walletAddress) {
+        if (userOwnsAsset && window.walletProvider && window.walletProvider.walletAddress) {
             actionsContainer.classList.remove('hidden');
         } else {
             actionsContainer.classList.add('hidden');
@@ -147,12 +148,34 @@ function renderAsset(asset) {
 
 async function fetchAndRender(assetName) {
     showLoading();
+    userOwnsAsset = false;
+
     try {
         const response = await CounterpartyV2.getAsset(assetName);
         const asset = response && response.result ? response.result : response;
         if (!asset || !asset.asset) {
             throw new Error('Invalid asset data');
         }
+
+        // Check ownership using getUserAsset if a wallet is connected
+        if (window.walletProvider && window.walletProvider.walletAddress) {
+            try {
+                const balResp = await CounterpartyV2.getUserAsset(
+                    window.walletProvider.walletAddress,
+                    assetName
+                );
+                const balances = balResp && balResp.result ? balResp.result : [];
+                // User owns the asset if there's a positive balance entry for it
+                userOwnsAsset = balances.some(b => {
+                    const total = (b.total != null ? b.total : b.quantity);
+                    return b.asset === assetName && Number(total || 0) > 0;
+                });
+            } catch (e) {
+                // No balance or error → does not own
+                userOwnsAsset = false;
+            }
+        }
+
         renderAsset(asset);
     } catch (e) {
         console.error('Failed to load asset:', e);

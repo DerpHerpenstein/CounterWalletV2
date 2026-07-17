@@ -17,7 +17,10 @@ tailwind.config = {
     }
 }
 
-window.dataStore = {};
+window.dataStore = {
+    initializedPages: {
+    }
+};
 
 // used to escape potentially dangerous html
 window.escapeHtml = (tmpData) => {
@@ -154,11 +157,18 @@ document.addEventListener('DOMContentLoaded', async function() {
             if (page.dataset.type === type) {
                 page.classList.remove('hidden');
                 // Call page-specific initialization if available (e.g. auto-load assets)
+                // Only initialize once per page (using initializedPages) so pages don't reset on navigation
                 if (type === 'myassets' && typeof window.initMyAssets === 'function') {
-                    window.initMyAssets();
+                    if (!window.dataStore.initializedPages.myassets) {
+                        window.initMyAssets();
+                        window.dataStore.initializedPages.myassets = true;
+                    }
                 }
                 else if (type === 'explore' && typeof window.initExplore === 'function') {
-                    window.initExplore();
+                    if (!window.dataStore.initializedPages.explore) {
+                        window.initExplore();
+                        window.dataStore.initializedPages.explore = true;
+                    }
                 }
                 else if (type === 'asset' && typeof window.initAsset === 'function') {
                     window.initAsset();
