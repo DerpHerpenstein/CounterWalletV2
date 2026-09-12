@@ -115,8 +115,8 @@ class CounterpartyV2 {
 
     static async getUserAsset(walletAddress, asset) {
         try {
-            let payload = `addresses=${walletAddress}&asset=${asset}&verbose=true`;
-            let response = await this.callAPI("addresses/balances", "", payload);
+            let payload = `verbose=true`;
+            let response = await this.callAPI(`assets/${asset}/balances/${walletAddress}`, "", payload);
             return response;
 
         } catch (error) {

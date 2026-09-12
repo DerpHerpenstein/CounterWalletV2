@@ -191,6 +191,7 @@ async function fetchAndRender(assetName) {
                     assetName
                 );
                 const balances = balResp && balResp.result ? balResp.result : [];
+                console.log(balances);
                 // User owns the asset if there's a positive balance entry for it
                 userOwnsAsset = balances.some(b => {
                     const total = (b.total != null ? b.total : b.quantity);
@@ -254,6 +255,9 @@ function initAsset() {
     if (!assetName) {
         showError("No asset specified. Use the search on the Explore page or provide ?asset=NAME in the URL.");
         return;
+    }
+    else{
+        assetName = assetName.toUpperCase();
     }
 
     // Fetch and render
