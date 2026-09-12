@@ -2,13 +2,6 @@ import CounterpartyV2 from "../api/CounterpartyV2.js";
 
 let dispensersData = [];
 
-document.getElementById('general-modal').addEventListener('click', async function(event) {
-    if(event.target.id === "closedispenser-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('closedispenser-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-})
-
 document.getElementById('main').addEventListener('click', async function(event) {
     const closeDispenser = async() =>{
         try{
@@ -20,7 +13,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 0,                                                                    // set escrow quantityo to 0 to remove all
                 event.target.dataset.mainchainrate,                                   // main chain rate
                 10,                                                                   // close dispenser by sending 10
-                document.getElementById('closedispenser-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('closedispenser'),                          // fee sats/vb
             );
             
             // Transaction submission modal
@@ -83,16 +76,8 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 <p class="text-text-primary m-3">Order Sale price (sats): ${escapeHtml(event.target.dataset.mainchainrate)}</p>
 
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="closedispenser-selected-fee-rate">3</span> (sats/vb) </label> 
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="closedispenser-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="closedispenser-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
-            </div>    
+                ${window.generateFeeSelectorHtml('closedispenser')}
+            </div>
         `,"Cancel Dispenser For " + escapeHtml(event.target.dataset.asset),"Submit transaction", closeDispenser);
     }
 });

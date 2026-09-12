@@ -1,5 +1,8 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 
+// inject the shared fee selector (slider + custom fee input) into this page
+document.getElementById('mpma-fee-selector').innerHTML = window.generateFeeSelectorHtml('mpma');
+
 
 
 // add event listener to the main and then check that the class/id matches for each event
@@ -33,11 +36,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
     }
 
 
-    if(event.target.id === "mpma-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('mpma-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-    else if(event.target.id === "mpma-submit-tx-btn"){
+    if(event.target.id === "mpma-submit-tx-btn"){
         try{
             let mpmaData= parseDelimitedData(document.getElementById('mpma-asset-csv').value)
             let result = await CounterpartyV2.mpmaSatsPerVByte(
@@ -45,7 +44,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 mpmaData.destinations,                                      // destination addresses
                 mpmaData.assets,                                            //asset names
                 mpmaData.quantities,                                        //asset quantity
-                document.getElementById('mpma-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('mpma'),                         // fee sats/vb
                 document.getElementById('mpma-asset-memos').value,          //asset memo/s  for now just a single memo!
             );
             

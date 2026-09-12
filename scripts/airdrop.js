@@ -1,13 +1,12 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 
+// inject the shared fee selector (slider + custom fee input) into this page
+document.getElementById('airdrop-fee-selector').innerHTML = window.generateFeeSelectorHtml('airdrop');
+
 // add event listener to the main and then check that the class/id matches for each event
 document.getElementById('main').addEventListener('click', async function(event) {
 
-    if(event.target.id === "airdrop-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('airdrop-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-    else if(event.target.id === "airdrop-submit-tx-btn"){
+    if(event.target.id === "airdrop-submit-tx-btn"){
         try{
             let destinations = document.getElementById('airdrop-destination-address').value;
             // make sure we can split whitespace new line or comma deliniations
@@ -30,7 +29,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 finalDestinations,                                              // destination addresses
                 finalAssets,                                                    //asset names
                 finalQuantities,                                                //asset quantity
-                document.getElementById('airdrop-sats-per-vb-slider').value,    // fee sats/vb
+                window.getFeeSelectorValue('airdrop'),                          // fee sats/vb
                 document.getElementById('airdrop-asset-memo').value,            //asset memo/s
             );
             

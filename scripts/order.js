@@ -1,13 +1,12 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 
+// inject the shared fee selector (slider + custom fee input) into this page
+document.getElementById('order-fee-selector').innerHTML = window.generateFeeSelectorHtml('order');
+
 // add event listener to the main and then check that the class/id matches for each event
 document.getElementById('main').addEventListener('click', async function(event) {
 
-    if(event.target.id === "order-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('order-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-    else if(event.target.id === "order-submit-tx-btn"){
+    if(event.target.id === "order-submit-tx-btn"){
         try{
             let result = await CounterpartyV2.createOrderSatsPerVByte(
                 walletProvider.walletAddress,                                // source address
@@ -17,7 +16,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 document.getElementById('order-asset-get-quantity').value,   //get asset quantity
                 document.getElementById('order-expiration').value,           //expiration
                 0,
-                document.getElementById('order-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('order'),                         // fee sats/vb
             );
             
             // Transaction submission modal

@@ -3,20 +3,13 @@ import CounterpartyV2 from "../api/CounterpartyV2.js";
 let page = 1;
 let ordersData = [];
 
-document.getElementById('general-modal').addEventListener('click', async function(event) {
-    if(event.target.id === "cancel-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('cancel-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-})
-
 document.getElementById('main').addEventListener('click', async function(event) {
     const cancelDexOrder = async() =>{
         try{
             let result = await CounterpartyV2.createCancelSatsPerVByte(
                 walletProvider.walletAddress,                                   // source address
                 event.target.dataset.txhash,                                     //order tx hash
-                document.getElementById('cancel-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('cancel'),                            // fee sats/vb
             );
             
             // Transaction submission modal
@@ -71,16 +64,8 @@ document.getElementById('main').addEventListener('click', async function(event) 
                     <p class="text-text-primary">${escapeHtml(event.target.dataset.txhash)}</p>
                 </div>
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="cancel-selected-fee-rate">3</span> (sats/vb) </label> 
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="cancel-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="cancel-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
-            </div>    
+                ${window.generateFeeSelectorHtml('cancel')}
+            </div>
         `,"Cancel Dex Order - " + escapeHtml(event.target.dataset.asset),"Submit transaction", cancelDexOrder);
     }
 });

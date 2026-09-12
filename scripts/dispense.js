@@ -3,13 +3,6 @@ import CounterpartyV2 from "../api/CounterpartyV2.js";
 let page = 1;
 let dispenseDispenserData = [];
 
-document.getElementById('general-modal').addEventListener('click', async function(event) {
-    if(event.target.id === "dispense-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('dispense-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-})
-
 async function buyDispenser() {
     try {
         let quantity = parseFloat(document.getElementById('dispense-buy-quantity').value);
@@ -22,7 +15,7 @@ async function buyDispenser() {
             walletProvider.walletAddress, // source address
             source, // dispenser address
             finalValue, // quantity
-            document.getElementById('dispense-sats-per-vb-slider').value, // fee sats/vb
+            window.getFeeSelectorValue('dispense'), // fee sats/vb
         );
 
         // Transaction submission modal
@@ -82,15 +75,7 @@ function openDispenseBuyModal(dispenser) {
                 </div>
 
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="dispense-selected-fee-rate">3</span> (sats/vb) </label>
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="dispense-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="dispense-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
+                ${window.generateFeeSelectorHtml('dispense')}
             </div>
         `, "Dispense - " + window.escapeHtml(dispenser.asset), "Buy", buyDispenser);
 }
@@ -187,16 +172,8 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 </div>
 
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="dispense-selected-fee-rate">3</span> (sats/vb) </label> 
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="dispense-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="dispense-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
-            </div>    
+                ${window.generateFeeSelectorHtml('dispense')}
+            </div>
         `,"Dispense - " + escapeHtml(event.target.dataset.asset),"Buy", buyDispenser);
     }
 });

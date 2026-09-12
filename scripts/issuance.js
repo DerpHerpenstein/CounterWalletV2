@@ -1,13 +1,12 @@
 import CounterpartyV2 from "../api/CounterpartyV2.js";
 
+// inject the shared fee selector (slider + custom fee input) into this page
+document.getElementById('issuance-fee-selector').innerHTML = window.generateFeeSelectorHtml('issuance');
+
 // add event listener to the main and then check that the class/id matches for each event
 document.getElementById('main').addEventListener('click', async function(event) {
 
-    if(event.target.id === "issuance-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('issuance-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-    else if(event.target.id === "issuance-generate-numeric"){
+    if(event.target.id === "issuance-generate-numeric"){
         document.getElementById('issuance-selected-asset').value = await CounterpartyV2.generateAvailableAssetName();
     }
     else if(event.target.id === "issuance-submit-tx-btn"){
@@ -21,7 +20,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 document.getElementById('issuance-asset-locked').checked,         //asset locked
                 document.getElementById('issuance-asset-reset').checked,          //asset reset
                 document.getElementById('issuance-asset-description').value,    //asset description
-                document.getElementById('issuance-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('issuance'),                         // fee sats/vb
             );
             
             // Transaction submission modal

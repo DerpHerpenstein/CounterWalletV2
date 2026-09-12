@@ -134,6 +134,73 @@ const loadPage = async (pageName) =>  {
 
 
 document.addEventListener('DOMContentLoaded', async function() {
+    // ----- Fee selector component -----
+    // Generates the full markup for a fee selector: a number input for custom fees
+    // plus a range slider, both synced to a shared display span.
+    // All elements are keyed off the base id:
+    //   {id}-fee-input, {id}-sats-per-vb-slider, {id}-selected-fee-rate
+    // NOTE: defined before the page-loading loop so the page scripts (which run
+    // during the loop) can call generateFeeSelectorHtml immediately.
+    window.generateFeeSelectorHtml = function (id, options = {}) {
+        const value = options.value ?? 3;
+        const min   = options.min   ?? 1;
+        const max   = options.max   ?? 100;
+        const step  = options.step  ?? 0.1;
+        return `
+                <div class="mb-6">
+                    <label class="block text-text-secondary text-sm mb-2">Fee: <span id="${id}-selected-fee-rate" class="fee-rate-display">${value}</span> (sats/vb) </label>
+                    <div class="flex space-x-2">
+                        <input id="${id}-fee-input" type="number" value="${value}" min="0" step="${step}" placeholder="${value}"
+                                class="fee-rate-input input-field w-28 px-3 py-2 rounded-lg focus:outline-none" title="Enter a custom fee, or use the slider">
+                        <div class="relative w-full">
+                            <label for="${id}-sats-per-vb-slider" class="sr-only">Labels range</label>
+                            <input id="${id}-sats-per-vb-slider" type="range" value="${value}" min="${min}" max="${max}" step="${step}" class="fee-rate-slider sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                            <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">${min} sat/vb</span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">${max} sat/vb</span>
+                        </div>
+                    </div>
+                </div>`;
+    }
+
+    // Reads the validated fee for a given base id. The number input is the source of
+    // truth (allows custom values outside the slider range); falls back to the slider
+    // value (then 3) if the input is empty or invalid.
+    window.getFeeSelectorValue = function (id) {
+        const input  = document.getElementById(id + '-fee-input');
+        const slider = document.getElementById(id + '-sats-per-vb-slider');
+        let value = input ? parseFloat(input.value) : NaN;
+        if (!isFinite(value) || value < 0) {
+            value = slider ? parseFloat(slider.value) : NaN;
+        }
+        return isFinite(value) ? value : 3;
+    }
+
+    // One delegated listener handles EVERY fee selector (static pages and dynamically
+    // injected modal content), syncing slider <-> number input <-> display span.
+    document.addEventListener('input', function(event) {
+        const target = event.target;
+        if (!target || !target.id) return;
+
+        if (target.classList.contains('fee-rate-slider')) {
+            const base = target.id.replace('sats-per-vb-slider', '');
+            const input   = document.getElementById(base + 'fee-input');
+            const display = document.getElementById(base + 'selected-fee-rate');
+            if (input)   input.value = target.value;
+            if (display) display.innerText = target.value;
+        }
+        else if (target.classList.contains('fee-rate-input')) {
+            const base    = target.id.replace('fee-input', '');
+            const display = document.getElementById(base + 'selected-fee-rate');
+            const slider  = document.getElementById(base + 'sats-per-vb-slider');
+            if (display) display.innerText = target.value;
+            if (slider && target.value !== '' && !isNaN(parseFloat(target.value))) {
+                const min = parseFloat(slider.min);
+                const max = parseFloat(slider.max);
+                slider.value = Math.min(Math.max(parseFloat(target.value), min), max);
+            }
+        }
+    });
+
     // load all the pages into the main content section
     for(const pageName of pageNames){
         await loadPage(pageName);

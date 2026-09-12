@@ -108,13 +108,6 @@ async function loadFairminters(reset = false) {
     }
 }
 
-document.getElementById('general-modal').addEventListener('click', async function(event) {
-    if(event.target.id === "fairmint-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('fairmint-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-})
-
 // Main event delegation for fairmint page
 document.getElementById('main').addEventListener('click', async function(event) {
     const mintFairmint = async() =>{
@@ -122,7 +115,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
             let result = await CounterpartyV2.fairmintSatsPerVByte(
                 walletProvider.walletAddress,                                   // source address
                 event.target.dataset.asset,                                     //asset name
-                document.getElementById('fairmint-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('fairmint'),                         // fee sats/vb
             );
             
             // Transaction submission modal
@@ -158,16 +151,8 @@ document.getElementById('main').addEventListener('click', async function(event) 
                     <p class="text-text-primary">${escapeHtml(event.target.dataset.description)}</p>
                 </div>
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="fairmint-selected-fee-rate">3</span> (sats/vb) </label> 
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="fairmint-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="fairmint-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
-            </div>    
+                ${window.generateFeeSelectorHtml('fairmint')}
+            </div>
         `,"Fairmint - " + escapeHtml(event.target.dataset.asset),"Mint", mintFairmint);
     }
 });

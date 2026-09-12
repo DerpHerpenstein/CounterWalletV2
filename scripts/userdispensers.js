@@ -52,13 +52,6 @@ else{
 }
 
 
-document.getElementById('general-modal').addEventListener('click', async function(event) {
-    if(event.target.id === "userdispensers-sats-per-vb-slider"){
-        const selectedFee = document.getElementById('userdispensers-selected-fee-rate');
-        selectedFee.innerText = `${event.target.value}`
-    }
-})
-
 document.getElementById('main').addEventListener('click', async function(event) {
     const buyDispenser = async() =>{
         try{
@@ -71,7 +64,7 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 walletProvider.walletAddress,                   //source address
                 source,                                         // dispenser address
                 finalValue,                                       //quantity
-                document.getElementById('userdispensers-sats-per-vb-slider').value,   // fee sats/vb
+                window.getFeeSelectorValue('userdispensers'),     // fee sats/vb
             );
             
             // Transaction submission modal
@@ -167,16 +160,8 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 </div>
 
                 <div class="m-10"></div>
-                <label class="block text-text-secondary text-sm mb-2">Fee: <span id="userdispensers-selected-fee-rate">3</span> (sats/vb) </label> 
-                <div class="flex space-x-2">
-                    <div class="relative w-full">
-                        <label for="userdispensers-sats-per-vb-slider" class="sr-only">Labels range</label>
-                        <input id="userdispensers-sats-per-vb-slider" type="range" value="3" min="1" max="200" step="0.1" class="sats-per-vb-slider w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">1 sat/vb</span>
-                        <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">200 sat/vb</span>
-                    </div>
-                </div>
-            </div>    
+                ${window.generateFeeSelectorHtml('userdispensers')}
+            </div>
         `,"Dispense - " + escapeHtml(event.target.dataset.asset),"Buy", buyDispenser);
     }
 });
