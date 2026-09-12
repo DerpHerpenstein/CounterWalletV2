@@ -3,6 +3,7 @@ import UniSatConnect from "../wallets/UniSatConnect.js";
 import OkxConnect from "../wallets/OkxConnect.js";
 import LeatherConnect from "../wallets/LeatherConnect.js";
 import ManualConnect from "../wallets/ManualConnect.js"
+import XcpWalletConnect from "../wallets/XcpWalletConnect.js"
 import "./bitcoinjs-lib.min.js"
 import Buffer from "./buffer.min.js"
 
@@ -104,46 +105,54 @@ import Buffer from "./buffer.min.js"
 
                 }
                 else{
-                    let finalPsbt;
-                    if(walletProvider.walletAddress[0] === "1"){ // if this is a legacy address, we need the previous tx hex's
-                        let addressUtxos = await CounterpartyV2.getUtxos(walletProvider.walletAddress);
-                        let transactionMap = {};
-    
-                        // Create array of promises
-                        const promises = addressUtxos.result.map(async (utxo) => {
-                            const txHash = utxo.txid;
-                            const value = utxo.value;
-                            
-                            try {
-                                const transactionData = await CounterpartyV2.getBitcoinTransaction(txHash);
-                                //console.log(transactionData);
-                                // TODO: NEDED TO ADD CHECK FOR MULTIPLE OF THE SAME UTXO AMOUNTS HERE
-                                // Store with value as key
-                                transactionMap[value] = {
-                                    tx_hash: txHash,
-                                    tx_hex: transactionData.result.hex
-                                };
-                            } catch (error) {
-                                console.error(`Failed to fetch transaction ${txHash}:`, error);
-                            }
-                        });
-                        
-                        // Wait for all promises to complete
-                        await Promise.all(promises);
-                        let finalTxHexArray = [];
-                        for (const inputValue of tmpData.inputs_values) {
-                            finalTxHexArray.push(transactionMap[inputValue].tx_hex);
-                        }
-                        finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, finalTxHexArray);
-                    }// if we are taproot or segwit, just do what is normally done
-                    else if(walletProvider.walletAddress.includes("bc1p") || walletProvider.walletAddress.includes("bc1q")){
-                        finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
+                    let result;
+                    if(walletProvider.walletName === "xcpwallet"){
+                        // XCP Wallet signs the raw counterparty tx directly (it resolves prevouts itself)
+                        let signedResult = await walletProvider.signRawTransaction(tmpData.rawtransaction);
+                        result = await walletProvider.broadcastTx(signedResult.hex);
                     }
                     else{
-                        throw new Error("Only Legacy, Native Segwite and Taproot addresses supported")
+                        let finalPsbt;
+                        if(walletProvider.walletAddress[0] === "1"){ // if this is a legacy address, we need the previous tx hex's
+                            let addressUtxos = await CounterpartyV2.getUtxos(walletProvider.walletAddress);
+                            let transactionMap = {};
+        
+                            // Create array of promises
+                            const promises = addressUtxos.result.map(async (utxo) => {
+                                const txHash = utxo.txid;
+                                const value = utxo.value;
+                                
+                                try {
+                                    const transactionData = await CounterpartyV2.getBitcoinTransaction(txHash);
+                                    //console.log(transactionData);
+                                    // TODO: NEDED TO ADD CHECK FOR MULTIPLE OF THE SAME UTXO AMOUNTS HERE
+                                    // Store with value as key
+                                    transactionMap[value] = {
+                                        tx_hash: txHash,
+                                        tx_hex: transactionData.result.hex
+                                    };
+                                } catch (error) {
+                                    console.error(`Failed to fetch transaction ${txHash}:`, error);
+                                }
+                            });
+                            
+                            // Wait for all promises to complete
+                            await Promise.all(promises);
+                            let finalTxHexArray = [];
+                            for (const inputValue of tmpData.inputs_values) {
+                                finalTxHexArray.push(transactionMap[inputValue].tx_hex);
+                            }
+                            finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, finalTxHexArray);
+                        }// if we are taproot or segwit, just do what is normally done
+                        else if(walletProvider.walletAddress.includes("bc1p") || walletProvider.walletAddress.includes("bc1q")){
+                            finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
+                        }
+                        else{
+                            throw new Error("Only Legacy, Native Segwit and Taproot addresses supported")
+                        }
+                        console.log("Corrected PSBT", finalPsbt);
+                        result = await walletProvider.signAndBroadcastPSBT(finalPsbt);
                     }
-                    console.log("Corrected PSBT", finalPsbt);
-                    let result = await walletProvider.signAndBroadcastPSBT(finalPsbt);
                     window.showToast(`
                         Transaction successful!<br>
                         <a href="https://mempool.space/tx/${result}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
@@ -276,6 +285,20 @@ import Buffer from "./buffer.min.js"
         else if(e.target.id === "wallet-leather"){
             try{
                 walletProvider = new LeatherConnect();
+                await walletProvider.connect();
+                console.log(walletProvider)
+                walletModal.classList.remove('active');
+                document.getElementById('wallet-connect-text').innerText = showWalletAddress(walletProvider.walletAddress);
+                setActivePage(currentPage, false);
+            }
+            catch(e){
+                window.generalModal.openError("Error connecting wallet", e);
+            }
+        }
+        // connect xcp wallet
+        else if(e.target.id === "wallet-xcp"){
+            try{
+                walletProvider = new XcpWalletConnect();
                 await walletProvider.connect();
                 console.log(walletProvider)
                 walletModal.classList.remove('active');
