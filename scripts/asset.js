@@ -5,7 +5,7 @@ function getImageUrl(assetName) {
 }
 
 function getFallbackImage() {
-    return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%231e2937'/%3E%3Ctext x='50%25' y='50%25' font-family='system-ui' font-size='60' fill='%23647585' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%AA%99%3C/text%3E%3C/svg%3E`;
+    return `data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fw3.org%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f0f0f0%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Error%20loading%20image%0A%20%20%3C%2Ftext%3E%3C%2Fsvg%3E`;
 }
 
 // Expose fallback globally for any inline onerror if needed (defensive)
@@ -83,6 +83,7 @@ function renderAsset(asset, dispensers = []) {
     // Image
     const imgEl = document.getElementById('asset-image');
     if (imgEl) {
+        imgEl.dataset.fullSrc = getImageUrl(name);
         imgEl.src = getImageUrl(name);
         imgEl.onerror = function() {
             this.onerror = null;

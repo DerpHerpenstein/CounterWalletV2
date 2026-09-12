@@ -270,6 +270,23 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 
+    // Generic image zoom: clicking any element with the 'image-zoom' class
+    // opens a modal showing the image at up to 512x512 while keeping its aspect ratio.
+    document.addEventListener('click', function(event) {
+        const zoomTarget = event.target.closest('.image-zoom');
+        if (!zoomTarget || zoomTarget.tagName !== 'IMG') return;
+        const src = zoomTarget.dataset.fullSrc || zoomTarget.currentSrc || zoomTarget.src;
+        if (!src) return;
+        event.stopPropagation();
+        window.generalModal.openNoButtons(`
+            <div class="flex justify-center">
+                <img src="${src}"
+                     class="max-w-[512px] max-h-[512px] w-auto h-auto object-contain bg-[#1e2937] rounded-lg p-4"
+                     alt="${zoomTarget.alt || ''}">
+            </div>
+        `, zoomTarget.alt || "Image");
+    });
+
     // open menu on the sidebar on mobile
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
         document.getElementById('sidebar').classList.toggle('hidden');
