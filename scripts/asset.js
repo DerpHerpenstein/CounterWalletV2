@@ -294,7 +294,7 @@ async function showDispensersModal(assetName) {
             <div class="overflow-x-auto">
                 <div class="m-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
                     <p class="text-gray-700">
-                        Dispenser can be front run<br>Ensure you are buying from a trusted source<br>Buy are your own risk!
+                        Dispenser can be front run<br>Ensure you are buying from a trusted source<br>Buy at your own risk!
                     </p>
                 </div>
                 <table class="w-full text-left text-sm">
