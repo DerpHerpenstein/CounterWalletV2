@@ -12,6 +12,7 @@ function getFallbackImage() {
 window.getAssetFallbackImage = getFallbackImage;
 
 let currentAssetData = null;
+let currentAssetDispensers = [];
 let userOwnsAsset = false;
 
 function showLoading() {
@@ -53,7 +54,7 @@ function setExplorerLink(assetName, description) {
     link.href = url;
 }
 
-function renderAsset(asset) {
+function renderAsset(asset, dispensers = []) {
     currentAssetData = asset;
 
     const name = asset.asset || 'Unknown';
@@ -133,6 +134,16 @@ function renderAsset(asset) {
     // Explorer link
     setExplorerLink(name, description);
 
+    // View Dispensers button visibility
+    const viewDispBtn = document.getElementById('view-dispensers-btn');
+    if (viewDispBtn) {
+        if (dispensers.length > 0) {
+            viewDispBtn.classList.remove('hidden');
+        } else {
+            viewDispBtn.classList.add('hidden');
+        }
+    }
+
     // Quick actions visibility - only if user owns the asset
     const actionsContainer = document.getElementById('asset-quick-actions');
     if (actionsContainer) {
@@ -157,6 +168,15 @@ async function fetchAndRender(assetName) {
             throw new Error('Invalid asset data');
         }
 
+        // Check for dispensers (exclude oracle-based dispensers)
+        let dispensers = [];
+        try {
+            const dispResp = await CounterpartyV2.getDispensers(assetName, 1, 100);
+            dispensers = (dispResp.result || []).filter(d => !d.oracle_address);
+        } catch (e) {
+            console.error('Failed to fetch dispensers:', e);
+        }
+
         // Check ownership using getUserAsset if a wallet is connected
         if (window.walletProvider && window.walletProvider.walletAddress) {
             try {
@@ -176,7 +196,8 @@ async function fetchAndRender(assetName) {
             }
         }
 
-        renderAsset(asset);
+        renderAsset(asset, dispensers);
+        currentAssetDispensers = dispensers;
     } catch (e) {
         console.error('Failed to load asset:', e);
         showError(`The asset "${assetName}" does not exist or could not be loaded.`);
@@ -235,6 +256,94 @@ function initAsset() {
     // Attach quick action handlers (will respect wallet state at render time)
     // We pass the name so clicks can use it even if render hasn't completed yet
     attachQuickActions(assetName);
+
+    // Attach View Dispensers button handler.
+    // Re-bind on every init: clone the button to strip any previously attached
+    // listeners (same pattern as attachQuickActions), then bind a fresh handler
+    // that captures the current asset name so the modal title stays correct.
+    const viewDispBtn = document.getElementById('view-dispensers-btn');
+    if (viewDispBtn) {
+        const newBtn = viewDispBtn.cloneNode(true);
+        viewDispBtn.parentNode.replaceChild(newBtn, viewDispBtn);
+        newBtn.addEventListener('click', () => {
+            showDispensersModal(assetName);
+        });
+    }
+}
+
+async function showDispensersModal(assetName) {
+    try {
+        // Use cached dispensers if available, otherwise fetch
+        let dispensers = currentAssetDispensers;
+        if (!dispensers || dispensers.length === 0) {
+            const resp = await CounterpartyV2.getDispensers(assetName, 1, 100);
+            dispensers = resp.result || [];
+        }
+
+        if (dispensers.length === 0) {
+            window.generalModal.open("<p>No open dispensers found for this asset.</p>", "Dispensers");
+            return;
+        }
+
+        // Exclude oracle-based dispensers and order by price (cheapest first)
+        dispensers = [...dispensers]
+            .filter(d => !d.oracle_address)
+            .sort((a, b) => Number(a.satoshirate) - Number(b.satoshirate));
+
+        let tableHtml = `
+            <div class="overflow-x-auto">
+                <div class="m-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+                    <p class="text-gray-700">
+                        Dispenser can be front run<br>Ensure you are buying from a trusted source<br>Buy are your own risk!
+                    </p>
+                </div>
+                <table class="w-full text-left text-sm">
+                    <thead class="text-text-secondary border-b border-border-color">
+                        <tr>
+                            <th class="pb-2 font-medium">Dispenser</th>
+                            <th class="pb-2 font-medium">Price</th>
+                            <th class="pb-2 font-medium">Quantity</th>
+                            <th class="pb-2 font-medium">Remaining</th>
+                            <th class="pb-2 font-medium text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border-color">
+                        ${dispensers.map(d => `
+                            <tr>
+                                <td class="py-3 font-mono text-xs break-all max-w-[150px]">${window.escapeHtml(d.source)}</td>
+                                <td class="py-3">${window.escapeHtml(d.satoshirate_normalized)}</td>
+                                <td class="py-3">${window.escapeHtml(Number(d.give_quantity_normalized).toFixed(3))}</td>
+                                <td class="py-3">${window.escapeHtml(Number(d.give_remaining_normalized).toFixed(3))} / ${window.escapeHtml(Number(d.escrow_quantity_normalized).toFixed(3))}</td>
+                                <td class="py-1 text-right">
+                                    <button class="buy-dispenser-btn btn-primary px-4 py-2 rounded-lg"
+                                            data-dispenser-index="${dispensers.indexOf(d)}">
+                                        Buy
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        window.generalModal.open(tableHtml, `Dispensers for ${window.escapeHtml(assetName)}`, "Close", () => {
+            window.generalModal.close();
+        });
+
+        // Attach event listeners to Buy buttons
+        const buyBtns = document.querySelectorAll('.buy-dispenser-btn');
+        buyBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = btn.dataset.dispenserIndex;
+                window.openDispenseBuyModal(dispensers[index]);
+            });
+        });
+
+    } catch (e) {
+        console.error('Failed to show dispensers modal:', e);
+        window.generalModal.openError("Error loading dispensers", e);
+    }
 }
 
 // Make available globally
