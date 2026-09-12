@@ -59,10 +59,15 @@ function renderAsset(asset, dispensers = []) {
 
     const name = asset.asset || 'Unknown';
     const description = asset.description || 'No description available';
-    const supply = (asset.quantity != null && asset.quantity !== '') 
-        ? Number(asset.quantity).toLocaleString() 
-        : (asset.supply != null ? Number(asset.supply).toLocaleString() : '—');
+    const quantity = (asset.quantity != null && asset.quantity !== '')
+        ? Number(asset.quantity)
+        : (asset.supply != null ? Number(asset.supply) : null);
     const divisible = !!asset.divisible;
+    // For divisible assets the quantity is in the smallest unit (1e8), so divide
+    // by 100,000,000 for display.
+    const displayQuantity = quantity != null
+        ? (quantity / 100000000).toLocaleString()
+        : '—';
     const locked = !!asset.locked;
     const issuer = asset.issuer || asset.source || '—';
     const assetId = asset.asset_id != null ? asset.asset_id : '—';
@@ -107,8 +112,8 @@ function renderAsset(asset, dispensers = []) {
     // Quantity badge
     const qtyBadge = document.getElementById('asset-quantity-badge');
     if (qtyBadge) {
-        if (supply && supply !== '—') {
-            qtyBadge.textContent = supply;
+        if (displayQuantity && displayQuantity !== '—') {
+            qtyBadge.textContent = displayQuantity;
             qtyBadge.classList.remove('hidden');
         } else {
             qtyBadge.classList.add('hidden');
@@ -117,7 +122,7 @@ function renderAsset(asset, dispensers = []) {
 
     // Metadata
     const supplyEl = document.getElementById('asset-supply');
-    if (supplyEl) supplyEl.textContent = supply;
+    if (supplyEl) supplyEl.textContent = displayQuantity;
 
     const divEl = document.getElementById('asset-divisible');
     if (divEl) divEl.textContent = divisible ? 'Divisible' : 'Indivisible';

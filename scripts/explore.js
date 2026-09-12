@@ -15,8 +15,13 @@ function getFallbackImage() {
 
 function createIssuanceCard(issuance) {
     const assetName = window.escapeHtml(issuance.asset || 'Unknown');
-    const quantity = (issuance.quantity != null && issuance.quantity !== '') 
-        ? window.escapeHtml(Number(issuance.quantity).toLocaleString()) 
+    const quantity = (issuance.quantity != null && issuance.quantity !== '')
+        ? Number(issuance.quantity)
+        : null;
+    // For divisible assets the quantity is in the smallest unit (1e8), so divide
+    // by 100,000,000 for display.
+    const displayQuantity = quantity != null
+        ? window.escapeHtml((quantity / 100000000).toLocaleString())
         : null;
     const description = issuance.description ? window.escapeHtml(issuance.description) : 'No description available';
     const eventType = issuance.asset_events ? window.escapeHtml(issuance.asset_events) : '';
@@ -39,10 +44,10 @@ function createIssuanceCard(issuance) {
                      class="w-full h-full object-contain bg-[#1e2937] transition-all duration-300 group-hover:scale-105 p-4"
                      alt="${assetName}">
                 
-                ${quantity ? `
+                ${displayQuantity ? `
                 <!-- Quantity Badge -->
                 <div class="absolute top-4 right-4 bg-black/70 text-white text-xs font-mono px-3 py-1 rounded-2xl backdrop-blur-md border border-white/20">
-                    ${quantity}
+                    ${displayQuantity}
                 </div>` : ''}
                 
                 ${eventType ? `

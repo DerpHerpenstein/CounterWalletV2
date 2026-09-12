@@ -15,7 +15,12 @@ function getFallbackImage() {
 
 function createAssetCard(asset) {
     const assetName = window.escapeHtml(asset.asset);
-    const quantity = window.escapeHtml(asset.total.toLocaleString());
+    const quantity = asset.total != null ? Number(asset.total) : null;
+    // For divisible assets the quantity is in the smallest unit (1e8), so divide
+    // by 100,000,000 for display.
+    const displayQuantity = quantity != null
+        ? window.escapeHtml((quantity / 100000000).toLocaleString())
+        : null;
     const description = asset.asset_info?.description ? window.escapeHtml(asset.asset_info.description) : 'No description available';
     const isLocked = asset.asset_info?.locked || false;
     const isDivisible = asset.asset_info?.divisible || false;
@@ -38,7 +43,7 @@ function createAssetCard(asset) {
                 
                 <!-- Quantity Badge -->
                 <div class="absolute top-4 right-4 bg-black/70 text-white text-xs font-mono px-3 py-1 rounded-2xl backdrop-blur-md border border-white/20">
-                    ${quantity}
+                    ${displayQuantity}
                 </div>
                 
                 <!-- Status Badges -->
