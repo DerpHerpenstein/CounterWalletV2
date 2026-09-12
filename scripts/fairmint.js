@@ -39,6 +39,10 @@ function createFairmintCard(fairminter) {
             <div class="p-4 border-t border-border-color">
                 <button data-asset="${assetName}"
                         data-description="${window.escapeHtml(fairminter.description)}"
+                        data-price="${window.escapeHtml(fairminter.price)}"
+                        data-quantity-by-price="${window.escapeHtml(fairminter.quantity_by_price)}"
+                        data-max-mint-per-tx="${window.escapeHtml(fairminter.max_mint_per_tx)}"
+                        data-divisible="${window.escapeHtml(fairminter.divisible)}"
                     class="fairmint-mint-btn btn-primary px-6 py-3 rounded-lg flex items-center justify-center">
                     Mint
                 </button>
@@ -108,14 +112,89 @@ async function loadFairminters(reset = false) {
     }
 }
 
+// Returns true if the fairminter is priced (non-free). Fairminters are priced in
+// XCP by default; the API response does not expose a pricing_asset field, so a
+// non-zero price is the gate.
+function isXcpPriced(dataset) {
+    const price = parseFloat(dataset.price);
+    return isFinite(price) && price > 0;
+}
+
+// Convert a whole-token input (string/number) to integer base units.
+// Divisible assets use 8 decimals; non-divisible assets are whole units.
+function tokensToBaseUnits(tokensAmount, divisible) {
+    const value = parseFloat(tokensAmount);
+    if (!isFinite(value) || value < 0) return 0;
+    if (String(divisible) === 'true' || divisible === true) {
+        return Math.round(value * 1e8);
+    }
+    return Math.round(value);
+}
+
+// The API's compose/fairmint `quantity` is in minted-token base units and must be a
+// multiple of the fairmint's lot_size (= quantity_by_price). Takes a whole-token input,
+// converts to base units, rounds DOWN to the nearest whole lot, and caps at max_mint_per_tx.
+// Returns the lot-size-aligned quantity in base units (0 if no valid whole lot).
+function calculateFairmintQuantity(tokensAmount, quantityByPrice, maxMintPerTx, divisible) {
+    const qbp = parseFloat(quantityByPrice);
+    if (!isFinite(qbp) || qbp <= 0) return 0;
+
+    const lotSize = Math.max(1, Math.floor(qbp));
+    const rawBase = tokensToBaseUnits(tokensAmount, divisible);
+    if (rawBase <= 0) return 0;
+
+    // Round down to the nearest whole lot
+    let quantityBase = Math.floor(rawBase / lotSize) * lotSize;
+
+    // Cap at max_mint_per_tx, keeping lot-size alignment
+    const max = parseFloat(maxMintPerTx);
+    if (isFinite(max) && max > 0 && quantityBase > max) {
+        quantityBase = Math.floor(max / lotSize) * lotSize;
+    }
+    return quantityBase;
+}
+
+// Estimate XCP cost for a given lot-aligned quantity (base units).
+// xcp_sats = quantityBase * price / quantity_by_price; returned as whole XCP (number).
+function estimateXcpCost(quantityBase, priceSatsPerUnit, quantityByPrice) {
+    if (!quantityBase || quantityBase <= 0) return 0;
+    const price = parseFloat(priceSatsPerUnit);
+    const qbp = parseFloat(quantityByPrice);
+    if (!isFinite(price) || price <= 0 || !isFinite(qbp) || qbp <= 0) return 0;
+    const xcpSats = (quantityBase * price) / qbp;
+    return xcpSats / 1e8;
+}
+
+// Max whole tokens a user can mint in one transaction (for the input placeholder/label)
+function getMaxTokens(maxMintPerTx, divisible) {
+    const max = parseFloat(maxMintPerTx);
+    if (!isFinite(max) || max <= 0) return '';
+    if (String(divisible) === 'true' || divisible === true) {
+        return Math.floor(max / 1e8);
+    }
+    return Math.floor(max);
+}
+
 // Main event delegation for fairmint page
 document.getElementById('main').addEventListener('click', async function(event) {
     const mintFairmint = async() =>{
         try{
+            // The API expects the quantity in minted-token base units (a multiple of lot_size).
+            // For free fairmints, pass null so the API mints the maximum.
+            const quantity = isXcpPriced(event.target.dataset)
+                ? calculateFairmintQuantity(
+                    document.getElementById('fairmint-token-amount').value,
+                    event.target.dataset.quantityByPrice,
+                    event.target.dataset.maxMintPerTx,
+                    event.target.dataset.divisible
+                  )
+                : null;
+
             let result = await CounterpartyV2.fairmintSatsPerVByte(
                 walletProvider.walletAddress,                                   // source address
                 event.target.dataset.asset,                                     //asset name
                 window.getFeeSelectorValue('fairmint'),                         // fee sats/vb
+                quantity,                                                       // quantity (token base units) or null for free
             );
             
             // Transaction submission modal
@@ -137,6 +216,25 @@ document.getElementById('main').addEventListener('click', async function(event) 
     // if the user clicks a fairmint mint-btn, we need to open the fairmint-mint modal
     if (event.target.classList.contains('fairmint-mint-btn')) {
         const modalAssetName = event.target.dataset.asset;
+        const xcpPriced = isXcpPriced(event.target.dataset);
+
+        const maxTokens = xcpPriced ? getMaxTokens(event.target.dataset.maxMintPerTx, event.target.dataset.divisible) : '';
+
+        // For XCP-priced fairmints, add a token-amount input + live XCP cost estimate
+        const xcpSection = xcpPriced ? `
+            <div class="mt-4">
+                <label class="block text-text-secondary text-sm mb-2">Amount of ${escapeHtml(modalAssetName)} to mint ${maxTokens ? `(max: ${maxTokens})` : ''}</label>
+                <div class="flex space-x-2">
+                    <input id="fairmint-token-amount" type="number" min="0" step="any" value=""
+                            class="input-field w-full px-4 py-3 rounded-lg focus:outline-none"
+                            placeholder="${maxTokens ? `e.g. ${maxTokens}` : 'e.g. 1000'}">
+                </div>
+                <div class="mt-2">
+                    <p class="text-text-secondary text-sm">You will pay: <span id="fairmint-xcp-cost" class="text-text-primary font-semibold">0</span> XCP</p>
+                </div>
+            </div>
+        ` : ``;
+
         window.generalModal.open(`
             <div class="mb-6">
                 <div class="flex justify-center mb-4">
@@ -150,10 +248,31 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 <div class="w-full h-20 overflow-y-auto bg-card-bg border border-border-color p-2">
                     <p class="text-text-primary">${escapeHtml(event.target.dataset.description)}</p>
                 </div>
+                ${xcpSection}
                 <div class="m-10"></div>
                 ${window.generateFeeSelectorHtml('fairmint')}
             </div>
         `,"Fairmint - " + escapeHtml(event.target.dataset.asset),"Mint", mintFairmint);
+
+        // Live XCP cost estimate as the user types
+        if (xcpPriced) {
+            const amountInput = document.getElementById('fairmint-token-amount');
+            const costEl = document.getElementById('fairmint-xcp-cost');
+            amountInput.addEventListener('input', function() {
+                const quantityBase = calculateFairmintQuantity(
+                    amountInput.value,
+                    event.target.dataset.quantityByPrice,
+                    event.target.dataset.maxMintPerTx,
+                    event.target.dataset.divisible
+                );
+                const cost = estimateXcpCost(
+                    quantityBase,
+                    event.target.dataset.price,
+                    event.target.dataset.quantityByPrice
+                );
+                costEl.textContent = cost.toLocaleString(undefined, { maximumFractionDigits: 8 });
+            });
+        }
     }
 });
 

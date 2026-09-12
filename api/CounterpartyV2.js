@@ -475,12 +475,17 @@ class CounterpartyV2 {
         }
     }
 
-    static async fairmintSatsPerVByte(sourceAddress, assetName, satsPerVByte) {
+    static async fairmintSatsPerVByte(sourceAddress, assetName, satsPerVByte, quantity = null) {
         try {
             let payloadObject = {
                 asset:assetName,
                 fee_per_kb: parseInt("" + (satsPerVByte * 1000)),
                 return_psbt: true,
+            }
+            // For XCP-priced fairmints, quantity is the amount of XCP (in sats) to spend.
+            // Omit for free fairmints so the API mints the maximum amount.
+            if(quantity !== null && quantity !== undefined){
+                payloadObject.quantity = parseInt("" + quantity);
             }
 
             let payload = new URLSearchParams(payloadObject).toString();
