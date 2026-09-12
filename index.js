@@ -170,6 +170,12 @@ document.addEventListener('DOMContentLoaded', async function() {
                         window.dataStore.initializedPages.explore = true;
                     }
                 }
+                else if (type === 'fairmint' && typeof window.initFairmint === 'function') {
+                    if (!window.dataStore.initializedPages.fairmint) {
+                        window.initFairmint();
+                        window.dataStore.initializedPages.fairmint = true;
+                    }
+                }
                 else if (type === 'asset' && typeof window.initAsset === 'function') {
                     window.initAsset();
                 }
