@@ -59,6 +59,45 @@ class XcpWalletConnect {
     }
 
 
+    /**
+     * Sign a fully funded plain-Bitcoin PSBT (no Counterparty payload). XCP Wallet
+     * refuses non-Counterparty transactions through xcp_signTransaction/xcp_signPsbt,
+     * so taproot reveal commit txs use this xcp_signBitcoinPsbt capability instead.
+     * Returns the signed PSBT hex.
+     * @param rawPSBT
+     * @param walletAddress - the address that owns the inputs
+     * @param outputs - [{ address, amountSats }] external outputs (change excluded)
+     * @returns {Promise<*>}
+     */
+    async signBitcoinPaymentPSBT(rawPSBT, walletAddress, outputs){
+        try {
+            const psbt = bitcoin.Psbt.fromHex(rawPSBT);
+            const inputIndices = Array.from({ length: psbt.inputCount }, (_, i) => i);
+            let res = await window.xcpwallet.request({
+                method: 'xcp_signBitcoinPsbt',
+                params: [{
+                    hex: rawPSBT,
+                    signInputs: { [walletAddress]: inputIndices },
+                    sighashTypes: inputIndices.map(() => 0x01),
+                    intent: {
+                        standard: 'xcp-wallet/bitcoin-payment',
+                        version: 1,
+                        action: 'pay',
+                        outputs,
+                        description: 'Counterparty taproot reveal funding'
+                    }
+                }]
+            });
+            return res.hex;
+
+        }
+        catch (error) {
+            console.log("Sign failed", error);
+            // re-throw the error so it can be handled by the caller
+            throw error;
+        }
+    }
+
     signPSBT = async(rawPSBT) => {
         let res = await window.xcpwallet.request({ method: 'xcp_signPsbt', params: [{ hex: rawPSBT }] }); 
         return res.hex;

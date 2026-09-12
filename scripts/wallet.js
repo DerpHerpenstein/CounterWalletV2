@@ -107,9 +107,29 @@ import Buffer from "./buffer.min.js"
                 else{
                     let result;
                     if(walletProvider.walletName === "xcpwallet"){
-                        // XCP Wallet signs the raw counterparty tx directly (it resolves prevouts itself)
-                        let signedResult = await walletProvider.signRawTransaction(tmpData.rawtransaction);
-                        result = await walletProvider.broadcastTx(signedResult.hex);
+                        if(isTaprootTx){
+                            // The taproot commit tx is a plain BTC payment with no Counterparty data, which
+                            // XCP refuses through xcp_signTransaction - sign it with xcp_signBitcoinPsbt instead.
+                            let finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
+                            // collect the external outputs (everything that is not change back to the signer)
+                            let outputs = [];
+                            let tx = bitcoin.Transaction.fromHex(tmpData.rawtransaction);
+                            for(const out of tx.outs){
+                                let address = null;
+                                try{ address = bitcoin.address.fromOutputScript(out.script, bitcoin.networks.bitcoin); }catch(e){}
+                                if(address === walletProvider.walletAddress) continue; // change - excluded
+                                if(address) outputs.push({ address, amountSats: out.value });
+                            }
+                            let signedPSBT = await walletProvider.signBitcoinPaymentPSBT(finalPsbt, walletProvider.walletAddress, outputs);
+                            let signedPsbt = bitcoin.Psbt.fromHex(signedPSBT);
+                            signedPsbt.finalizeAllInputs();
+                            result = await walletProvider.broadcastTx(signedPsbt.extractTransaction().toHex());
+                        }
+                        else{
+                            // XCP Wallet signs the raw counterparty tx directly (it resolves prevouts itself)
+                            let signedResult = await walletProvider.signRawTransaction(tmpData.rawtransaction);
+                            result = await walletProvider.broadcastTx(signedResult.hex);
+                        }
                     }
                     else{
                         let finalPsbt;
