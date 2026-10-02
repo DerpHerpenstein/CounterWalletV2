@@ -5,7 +5,7 @@ import Buffer from "./buffer.min.js"
 const ecc = window.secp256k1;
 bitcoin.initEccLib(ecc);
 
-window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
+window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex, lockScripts = null, tapInternalKey = null) => {
   try {
     // Parse raw hex transaction
     //console.log(bitcoin.default);
@@ -31,9 +31,15 @@ window.rawHexToPsbt = (rawHex, userAddress, utxoValues, previousTxHex) => {
       if (isSegWit || isTaproot) {
         // SegWit or Taproot: Add witness UTXO (requires amount and scriptPubKey)
         inputData.witnessUtxo = {
-          script: prevOutScript, // Replace with actual scriptPubKey from UTXO
+          script: lockScripts
+            ? Buffer.from(lockScripts[index], "hex")
+            : prevOutScript, // Replace with actual scriptPubKey from UTXO
           value: utxoValues[index],
         };
+        // P2TR key-path spends need the x-only internal key to sign
+        if (isTaproot && tapInternalKey) {
+          inputData.tapInternalKey = Buffer.from(tapInternalKey, "hex");
+        }
         if (input.witness && input.witness.length > 0) {
           inputData.witness = input.witness;
         }

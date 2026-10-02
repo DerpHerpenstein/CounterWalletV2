@@ -23,9 +23,25 @@ class LeatherConnect {
     }
 
 
-    // signs and broadcasts a PSBT
+    // signs a PSBT without broadcasting (used for the taproot reveal)
+    // https://leather.gitbook.io/developers/bitcoin-methods/signpsbt
     signPSBT = async(rawPSBT) => {
-        throw new Error("signPSBT Not implimented");
+        try {
+            let response = await window.LeatherProvider.request('signPsbt', {
+                hex: rawPSBT,
+                broadcast: false,   // do not broadcast; the caller handles it
+                finalize: true      // return a finalized PSBT
+            });
+            if(response.result?.hex){
+                return response.result.hex;
+            }
+            throw new Error('Sign failed');
+        }
+        catch (error) {
+            console.log("Sign failed", error);
+            // re-throw the error so it can be handled by the caller
+            throw new Error('Sign failed');
+        }
     }
 
     signAndBroadcastPSBT = async (signedPSBT) => { 

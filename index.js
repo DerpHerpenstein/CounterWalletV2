@@ -298,6 +298,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             modalEl.classList.add('active');
             let newConfirmButton = oldConfirmButton.cloneNode(true);
             oldConfirmButton.parentNode.replaceChild(newConfirmButton, oldConfirmButton);
+            // reset any disabled state left over from a previous modal (e.g. the
+            // taproot "save your signed reveal" gate) so it does not leak here
+            newConfirmButton.disabled = false;
             newConfirmButton.addEventListener('click', cbFunction);
         },
 

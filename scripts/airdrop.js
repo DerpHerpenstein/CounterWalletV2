@@ -35,6 +35,10 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 finalQuantities,                                                //asset quantity
                 window.getFeeSelectorValue('airdrop'),                          // fee sats/vb
                 document.getElementById('airdrop-asset-memo').value,            //asset memo/s
+                "False",                                                        // memo is hex
+                "None",                                                         // memos
+                "False",                                                        // memos are hex
+                walletProvider.publicKey || null                                // source pubkey for taproot envelope
             );
             
             // Transaction submission modal

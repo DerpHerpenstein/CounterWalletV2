@@ -99,8 +99,30 @@ class XcpWalletConnect {
     }
 
     signPSBT = async(rawPSBT) => {
-        let res = await window.xcpwallet.request({ method: 'xcp_signPsbt', params: [{ hex: rawPSBT }] }); 
+        let res = await window.xcpwallet.request({ method: 'xcp_signPsbt', params: [{ hex: rawPSBT }] });
         return res.hex;
+    }
+
+    /**
+     * Fetch the public key for the connected account. Needed so the node can
+     * build the taproot reveal envelope (multisig_pubkey). Returns null if the
+     * extension does not expose a public key method.
+     * @returns {Promise<string|null>}
+     */
+    async getPublicKey(){
+        try {
+            let res = await window.xcpwallet.request({ method: 'xcp_getPublicKey' });
+            const pk = res?.publicKey
+                || res?.public_key
+                || res?.result?.publicKey
+                || res?.result?.public_key
+                || (typeof res?.result === 'string' ? res.result : null);
+            return typeof pk === 'string' ? pk : null;
+        }
+        catch (error) {
+            console.log("Could not fetch XCP Wallet public key", error);
+            return null;
+        }
     }
 
 
@@ -134,6 +156,8 @@ class XcpWalletConnect {
             try {
                 let result = await window.xcpwallet.request({ method: 'xcp_requestAccounts' });
                 this.walletAddress = result.accounts[0];
+                // best-effort: populate the public key for taproot envelope composition
+                this.publicKey = await this.getPublicKey();
                 this.walletName = "xcpwallet";
                 this.connected = true;
                 console.log("Connected with XCP Wallet: ", this.walletAddress);

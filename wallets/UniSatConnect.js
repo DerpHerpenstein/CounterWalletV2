@@ -51,8 +51,8 @@ class UniSatConnect {
         }
 
 
-    signPSBT = async(rawPSBT) => {
-        let signedPsbt = await window.unisat.signPsbt(rawPSBT); 
+    signPSBT = async(rawPSBT, options = {}) => {
+        let signedPsbt = await window.unisat.signPsbt(rawPSBT, options);
         return signedPsbt;
     }
 

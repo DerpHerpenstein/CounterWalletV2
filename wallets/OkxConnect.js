@@ -31,8 +31,8 @@ class OkxConnect {
     }
 
 
-    signPSBT = async(rawPSBT) => {
-        let signedPsbt = await window.okxwallet.bitcoin.signPsbt(rawPSBT);
+    signPSBT = async(rawPSBT, options = {}) => {
+        let signedPsbt = await window.okxwallet.bitcoin.signPsbt(rawPSBT, options);
         return signedPsbt;
     }
 
