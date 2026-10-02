@@ -18,10 +18,11 @@ function createIssuanceCard(issuance) {
     const quantity = (issuance.quantity != null && issuance.quantity !== '')
         ? Number(issuance.quantity)
         : null;
-    // For divisible assets the quantity is in the smallest unit (1e8), so divide
-    // by 100,000,000 for display.
+    // Divisible assets store quantity in the smallest unit (1e8), so divide by
+    // 100,000,000 for display. Non-divisible assets are already whole units.
+    const isDivisible = issuance.divisible === true || issuance.divisible === 'true';
     const displayQuantity = quantity != null
-        ? window.escapeHtml((quantity / 100000000).toLocaleString())
+        ? window.escapeHtml((isDivisible ? quantity / 100000000 : quantity).toLocaleString())
         : null;
     const description = issuance.description ? window.escapeHtml(issuance.description) : 'No description available';
     const eventType = issuance.asset_events ? window.escapeHtml(issuance.asset_events) : '';

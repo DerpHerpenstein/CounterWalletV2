@@ -16,14 +16,14 @@ function getFallbackImage() {
 function createAssetCard(asset) {
     const assetName = window.escapeHtml(asset.asset);
     const quantity = asset.total != null ? Number(asset.total) : null;
-    // For divisible assets the quantity is in the smallest unit (1e8), so divide
-    // by 100,000,000 for display.
-    const displayQuantity = quantity != null
-        ? window.escapeHtml((quantity / 100000000).toLocaleString())
-        : null;
     const description = asset.asset_info?.description ? window.escapeHtml(asset.asset_info.description) : 'No description available';
     const isLocked = asset.asset_info?.locked || false;
-    const isDivisible = asset.asset_info?.divisible || false;
+    const isDivisible = asset.asset_info?.divisible === true || asset.asset_info?.divisible === 'true';
+    // Divisible assets store quantity in the smallest unit (1e8), so divide by
+    // 100,000,000 for display. Non-divisible assets are already whole units.
+    const displayQuantity = quantity != null
+        ? window.escapeHtml((isDivisible ? quantity / 100000000 : quantity).toLocaleString())
+        : null;
     
     const isStamp = description.toLowerCase().includes("stamp:");
     const explorerUrl = isStamp 
