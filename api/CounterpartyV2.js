@@ -362,8 +362,9 @@ class CounterpartyV2 {
     }
 
     // TODO: make MPMA AUTOMATICALLY NORMALIZE ASSETS
-    static async mpmaSatsPerVByte(sourceAddress, destinationAddresses, assetNames, 
-                        quantities, satsPerVByte, memo="None", memoIsHex="False", memos="None", memosAreHex="False") {
+    static async mpmaSatsPerVByte(sourceAddress, destinationAddresses, assetNames,
+                        quantities, satsPerVByte, memo="None", memoIsHex="False", memos="None", memosAreHex="False",
+                        sourcePubkey = null) {
         try {
             let payloadObject = {
                 address: sourceAddress,
@@ -375,13 +376,19 @@ class CounterpartyV2 {
                 return_psbt: true,
             }
 
+            // v11.5.0 requires a pubkey belonging to the source address so the
+            // node can build the reveal envelope that the wallet must sign.
+            if(sourcePubkey){
+                payloadObject.multisig_pubkey = sourcePubkey;
+            }
+
             if(memo !== "None"){
                 payloadObject.memo = memo;
                 payloadObject.memo_is_hex = memoIsHex;
             }
             else if(memos !== "None"){
                 payloadObject.memos = memos;
-                payloadObject.memos_are_hex = memosAreHex; 
+                payloadObject.memos_are_hex = memosAreHex;
             }
 
             console.log(payloadObject);
