@@ -8,6 +8,10 @@ document.getElementById('main').addEventListener('click', async function(event) 
 
     if(event.target.id === "airdrop-submit-tx-btn"){
         try{
+            // v11.5.0 taproot encoding only supports P2WPKH (bc1q) and P2TR (bc1p) sources
+            if(!(walletProvider.walletAddress.includes("bc1q") || walletProvider.walletAddress.includes("bc1p"))){
+                throw new Error("Airdrop requires a Native SegWit (bc1q) or Taproot (bc1p) address");
+            }
             let destinations = document.getElementById('airdrop-destination-address').value;
             // make sure we can split whitespace new line or comma deliniations
             let destinationsArray = destinations.split(/[\s,]+/).filter(dest => dest.length > 0);//split(",");

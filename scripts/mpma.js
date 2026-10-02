@@ -38,6 +38,10 @@ document.getElementById('main').addEventListener('click', async function(event) 
 
     if(event.target.id === "mpma-submit-tx-btn"){
         try{
+            // v11.5.0 taproot encoding only supports P2WPKH (bc1q) and P2TR (bc1p) sources
+            if(!(walletProvider.walletAddress.includes("bc1q") || walletProvider.walletAddress.includes("bc1p"))){
+                throw new Error("MPMA requires a Native SegWit (bc1q) or Taproot (bc1p) address");
+            }
             let mpmaData= parseDelimitedData(document.getElementById('mpma-asset-csv').value)
             let result = await CounterpartyV2.mpmaSatsPerVByte(
                 walletProvider.walletAddress,                               // source address
@@ -46,6 +50,10 @@ document.getElementById('main').addEventListener('click', async function(event) 
                 mpmaData.quantities,                                        //asset quantity
                 window.getFeeSelectorValue('mpma'),                         // fee sats/vb
                 document.getElementById('mpma-asset-memos').value,          //asset memo/s  for now just a single memo!
+                "False",                                                    // memo is hex
+                "None",                                                     // memos
+                "False",                                                    // memos are hex
+                walletProvider.publicKey || null                            // source pubkey for taproot envelope
             );
             
             // Transaction submission modal
