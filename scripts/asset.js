@@ -211,6 +211,42 @@ async function fetchAndRender(assetName) {
     }
 }
 
+// Fetches the connected wallet's available balance for an asset and writes it into
+// the target action page's "Available" tag. Divisible assets are stored in base
+// units (1e8) and scaled down for display; non-divisible assets are whole units.
+async function setTargetPageBalance(pageType, asset) {
+    const balanceEl = document.getElementById(pageType + '-available-balance');
+    if (!balanceEl) return;
+
+    const walletAddress = window.walletProvider && window.walletProvider.walletAddress;
+    if (!asset || !walletAddress) {
+        balanceEl.textContent = '—';
+        return;
+    }
+
+    balanceEl.textContent = '…';
+    try {
+        const response = await CounterpartyV2.getUserAsset(walletAddress, asset);
+        const result = response && response.result;
+        const entries = Array.isArray(result) ? result : (result ? [result] : []);
+
+        let raw = 0;
+        let divisible = false;
+        entries.forEach(entry => {
+            const value = entry.quantity != null ? entry.quantity : entry.total;
+            raw += Number(value || 0);
+            if (entry.asset_info && (entry.asset_info.divisible === true || entry.asset_info.divisible === 'true')) {
+                divisible = true;
+            }
+        });
+
+        balanceEl.textContent = (divisible ? raw / 1e8 : raw).toLocaleString();
+    } catch (e) {
+        // Asset not held by this wallet, or API error
+        balanceEl.textContent = '0';
+    }
+}
+
 function attachQuickActions(assetName) {
     const container = document.getElementById('asset-quick-actions');
     if (!container) return;
@@ -222,7 +258,7 @@ function attachQuickActions(assetName) {
         btn.parentNode.replaceChild(newBtn, btn);
     });
 
-    container.addEventListener('click', function handler(e) {
+    container.addEventListener('click', async function handler(e) {
         const btn = e.target.closest('.asset-action-btn');
         if (!btn) return;
 
@@ -234,6 +270,9 @@ function attachQuickActions(assetName) {
         if (selectedEl) {
             selectedEl.innerText = assetName;
         }
+
+        // Pass the available balance to the target page's "Available" tag
+        await setTargetPageBalance(action, assetName);
 
         // Navigate
         if (typeof window.setActivePage === 'function') {

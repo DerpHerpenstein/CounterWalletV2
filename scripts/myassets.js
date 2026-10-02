@@ -13,6 +13,42 @@ function getFallbackImage() {
     return `data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fw3.org%22%20width%3D%22200%22%20height%3D%22200%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f0f0f0%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20fill%3D%22%23666%22%3E%0A%20%20%20%20Error%20loading%20image%0A%20%20%3C%2Ftext%3E%3C%2Fsvg%3E`;
 }
 
+// Fetches the connected wallet's available balance for an asset and writes it into
+// the target action page's "Available" tag. Divisible assets are stored in base
+// units (1e8) and scaled down for display; non-divisible assets are whole units.
+async function setTargetPageBalance(pageType, asset) {
+    const balanceEl = document.getElementById(pageType + '-available-balance');
+    if (!balanceEl) return;
+
+    const walletAddress = window.walletProvider && window.walletProvider.walletAddress;
+    if (!asset || !walletAddress) {
+        balanceEl.textContent = '—';
+        return;
+    }
+
+    balanceEl.textContent = '…';
+    try {
+        const response = await CounterpartyV2.getUserAsset(walletAddress, asset);
+        const result = response && response.result;
+        const entries = Array.isArray(result) ? result : (result ? [result] : []);
+
+        let raw = 0;
+        let divisible = false;
+        entries.forEach(entry => {
+            const value = entry.quantity != null ? entry.quantity : entry.total;
+            raw += Number(value || 0);
+            if (entry.asset_info && (entry.asset_info.divisible === true || entry.asset_info.divisible === 'true')) {
+                divisible = true;
+            }
+        });
+
+        balanceEl.textContent = (divisible ? raw / 1e8 : raw).toLocaleString();
+    } catch (e) {
+        // Asset not held by this wallet, or API error
+        balanceEl.textContent = '0';
+    }
+}
+
 function createAssetCard(asset) {
     const assetName = window.escapeHtml(asset.asset);
     const quantity = asset.total != null ? Number(asset.total) : null;
@@ -281,7 +317,10 @@ document.getElementById('general-modal').addEventListener('click', async functio
         if (selectedAssetEl) {
             selectedAssetEl.innerText = asset;
         }
-        
+
+        // Pass the available balance to the target page's "Available" tag
+        await setTargetPageBalance(pageType, asset);
+
         setActivePage(pageType);
         generalModal.close();
     }
