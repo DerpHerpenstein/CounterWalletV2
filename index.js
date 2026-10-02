@@ -55,8 +55,9 @@ window.downloadJSON = (data, filename = 'data.json') => {
         console.error('Download failed:', error);
         // Fallback: show JSON in new window
         const win = window.open('', '_blank');
-        win.document.write('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
-        win.document.close();
+        const pre = win.document.createElement('pre');
+        pre.textContent = JSON.stringify(data, null, 2);
+        win.document.body.appendChild(pre);
     }
 }
 
@@ -318,8 +319,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.log(title,error);
             window.generalModal.open(`
                 <div class="space-y-4">
-                    <h4 class="font-bold text-lg">${title}</h4>
-                    <p>${error}</p>
+                    <h4 class="font-bold text-lg">${escapeHtml(title)}</h4>
+                    <p>${escapeHtml(error)}</p>
                 </div>
             `, "Error", "Okay", ()=>{
                 window.generalModal.close();
@@ -369,7 +370,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     });
 
     // show toast
-    window.showToast = function(message, type = "") {
+    window.showToast = function(message, type = "", link = null) {
 
         function getTypeIcon(type) {
             switch(type) {
@@ -424,12 +425,29 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Message content
         const messageDiv = document.createElement('div');
         messageDiv.className = 'flex items-start';
-        messageDiv.innerHTML = `
-          <span class="mr-2 mt-0.5">
-            ${getTypeIcon(type)}
-          </span>
-          <div class="text-text-primary">${message}</div>
-        `;
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'mr-2 mt-0.5';
+        iconSpan.innerHTML = getTypeIcon(type);
+
+        const textDiv = document.createElement('div');
+        textDiv.className = 'text-text-primary';
+        textDiv.textContent = message;
+
+        // Optional safe link (built via DOM so the href/text cannot inject markup)
+        if (link && link.href) {
+            textDiv.appendChild(document.createElement('br'));
+            const anchor = document.createElement('a');
+            anchor.href = link.href;
+            anchor.target = '_blank';
+            anchor.rel = 'noopener noreferrer';
+            anchor.className = 'text-accent-blue hover:text-accent-purple';
+            anchor.textContent = link.text || link.href;
+            textDiv.appendChild(anchor);
+        }
+
+        messageDiv.appendChild(iconSpan);
+        messageDiv.appendChild(textDiv);
       
         toast.appendChild(closeBtn);
         toast.appendChild(messageDiv);

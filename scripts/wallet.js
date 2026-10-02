@@ -222,10 +222,8 @@ import Buffer from "./buffer.min.js"
                     console.log("Corrected PSBT", finalPsbt);
                     result = await walletProvider.signAndBroadcastPSBT(finalPsbt);
                 }
-                window.showToast(`
-                    Transaction successful!<br>
-                    <a href="https://mempool.space/tx/${result}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
-                    `, 'success');
+                window.showToast(`Transaction successful!`, 'success',
+                    { href: `https://mempool.space/tx/${result}`, text: 'View on Mempool.space' });
                 console.log("Signed Tx Hash",result);
                 if(isTaprootTx){
                     window.showToast(`Broadcasting taproot reveal tx...`, 'Info');
@@ -233,18 +231,12 @@ import Buffer from "./buffer.min.js"
                     setTimeout( async () => {
                         try{
                             const taprootResult = await broadcastRawTx(signedRevealHex);
-                            window.showToast(`
-                                Reveal Transaction successful!<br>
-                                <a href="https://mempool.space/tx/${taprootResult}" class="text-accent-blue hover:text-accent-purple" target="_blank">View on Mempool.space</a>
-                                `, 'success');
+                            window.showToast(`Reveal Transaction successful!`, 'success',
+                                { href: `https://mempool.space/tx/${taprootResult}`, text: 'View on Mempool.space' });
                         }
                         catch(e){
                             console.log("Error broadcasting reveal", e);
-                            window.showToast(`
-                                Reveal Transaction failed!<br>
-                                ${e}<br>
-                                Your signed reveal is saved in the downloaded JSON - you can rebroadcast it manually.
-                                `, 'error');
+                            window.showToast(`Reveal Transaction failed! ${e} Your signed reveal is saved in the downloaded JSON - you can rebroadcast it manually.`, 'error');
                         }
                     },5000);
 
