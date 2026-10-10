@@ -6,19 +6,9 @@ class XcpWalletConnect {
  
     constructor() {
       this.connected = null;
-      this.connectType = null;
       this.walletAddress = null;
       this.publicKey = null;
       this.walletName = null;
-    }
-
-    /**
-     * Returns the tx hash or throws an error in case of failure
-     * @param signedPSBT
-     * @returns {Promise<*>}
-     */
-    async broadcastPSBT(signedPSBT){
-        return this.broadcastTx(signedPSBT);
     }
 
     /**
@@ -98,47 +88,28 @@ class XcpWalletConnect {
         }
     }
 
-    signPSBT = async(rawPSBT) => {
-        let res = await window.xcpwallet.request({ method: 'xcp_signPsbt', params: [{ hex: rawPSBT }] });
-        return res.hex;
-    }
-
     /**
-     * Fetch the public key for the connected account. Needed so the node can
-     * build the taproot reveal envelope (multisig_pubkey). Returns null if the
-     * extension does not expose a public key method.
-     * @returns {Promise<string|null>}
+     * Fetch the active account info (address + public key) using the official
+     * xcp_getAddresses method. Needed so the node can build the taproot reveal
+     * envelope (multisig_pubkey). Returns null if unavailable.
+     * @returns {Promise<{address: string, publicKey: string}|null>}
      */
-    async getPublicKey(){
+    async getAddresses(){
         try {
-            let res = await window.xcpwallet.request({ method: 'xcp_getPublicKey' });
-            const pk = res?.publicKey
-                || res?.public_key
-                || res?.result?.publicKey
-                || res?.result?.public_key
-                || (typeof res?.result === 'string' ? res.result : null);
-            return typeof pk === 'string' ? pk : null;
+            const info = await window.xcpwallet.request({ method: 'xcp_getAddresses' });
+            const active = info?.active;
+            if (!active) {
+                return null;
+            }
+            return {
+                address: active.address || null,
+                publicKey: active.publicKey || null
+            };
         }
         catch (error) {
-            console.log("Could not fetch XCP Wallet public key", error);
+            console.log("Could not fetch XCP Wallet addresses", error);
             return null;
         }
-    }
-
-
-    signAndBroadcastPSBT = async (psbt) => { 
-            try {
-                let signedPSBT = await this.signPSBT(psbt);
-                let finalPsbt = bitcoin.Psbt.fromHex(signedPSBT);
-                finalPsbt.finalizeAllInputs();
-                let result = await this.broadcastTx(finalPsbt.extractTransaction().toHex());
-                return(result)
-
-
-            } catch (error) {
-                throw new Error(`Error signing PSBT: ${error.message}`);
-            }
-
     }
 
     static isXcpWalletInstalled = () => {
@@ -156,8 +127,15 @@ class XcpWalletConnect {
             try {
                 let result = await window.xcpwallet.request({ method: 'xcp_requestAccounts' });
                 this.walletAddress = result.accounts[0];
-                // best-effort: populate the public key for taproot envelope composition
-                this.publicKey = await this.getPublicKey();
+                // Official way to get the active address + public key once the
+                // wallet is connected and unlocked.
+                const info = await this.getAddresses();
+                if (info) {
+                    if (info.address) {
+                        this.walletAddress = info.address;
+                    }
+                    this.publicKey = info.publicKey;
+                }
                 this.walletName = "xcpwallet";
                 this.connected = true;
                 console.log("Connected with XCP Wallet: ", this.walletAddress);
