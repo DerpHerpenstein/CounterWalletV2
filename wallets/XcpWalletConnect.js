@@ -89,6 +89,18 @@ class XcpWalletConnect {
     }
 
     /**
+     * Sign multiple PSBTs in one approval via the provider's bundle method.
+     * Used for the taproot commit-and-reveal pair. Returns the signed PSBT hexes
+     * in the same order as the requests.
+     * @param requests - [{ hex, signInputs, sighashTypes, intent? }]
+     * @returns {Promise<string[]>}
+     */
+    async signPsbts(requests){
+        const res = await window.xcpwallet.request({ method: 'xcp_signPsbts', params: [{ requests }] });
+        return res.hexes;
+    }
+
+    /**
      * Fetch the active account info (address + public key) using the official
      * xcp_getAddresses method. Needed so the node can build the taproot reveal
      * envelope (multisig_pubkey). Returns null if unavailable.

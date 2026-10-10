@@ -94,37 +94,10 @@ import Buffer from "./buffer.min.js"
             return psbt;
         }
 
-        // Collect the external (non-change) outputs of a raw tx, for wallet intents.
-        function collectExternalOutputs(txHex, changeAddress){
-            const tx = bitcoin.Transaction.fromHex(txHex);
-            const outputs = [];
-            for(const out of tx.outs){
-                let address = null;
-                try{ address = bitcoin.address.fromOutputScript(out.script, bitcoin.networks.bitcoin); }catch(e){}
-                if(address === changeAddress) continue; // change - excluded
-                if(address) outputs.push({ address, amountSats: out.value });
-            }
-            return outputs;
-        }
-
         // Sign the reveal with the connected wallet and return the signed tx hex.
         async function signReveal(tmpData){
             const psbt = buildRevealPsbt(tmpData);
             const psbtHex = psbt.toHex();
-
-            if(walletProvider.walletName === "xcpwallet"){
-                // The reveal is a plain-BTC tx (the Counterparty data lives in the
-                // tapscript), so sign it through the bitcoin-payment capability.
-                const outputs = collectExternalOutputs(tmpData.reveal_rawtransaction, walletProvider.walletAddress);
-                const signedPsbtHex = await walletProvider.signBitcoinPaymentPSBT(
-                    psbtHex,
-                    walletProvider.walletAddress,
-                    outputs
-                );
-                const signedPsbt = bitcoin.Psbt.fromHex(signedPsbtHex);
-                try { signedPsbt.finalizeAllInputs(); } catch(_) {}
-                return signedPsbt.extractTransaction().toHex();
-            }
 
             // UniSat / OKX / Leather - tell the wallet which inputs to sign (the
             // source key closes the envelope) and let us finalize locally.
@@ -141,6 +114,68 @@ import Buffer from "./buffer.min.js"
             return signedPsbt.extractTransaction().toHex();
         }
 
+        // XCP Wallet taproot: sign the commit and reveal together in one approval
+        // via the provider's commit-and-reveal bundle, then broadcast commit then reveal.
+        async function signAndBroadcastTaprootXcp(tmpData){
+            const address = walletProvider.walletAddress;
+            const commitPsbtHex = window.rawHexToPsbt(
+                tmpData.rawtransaction,
+                address,
+                tmpData.inputs_values,
+                null,
+                null,
+                toXOnly(walletProvider.publicKey)
+            );
+            const commitPsbt = bitcoin.Psbt.fromHex(commitPsbtHex);
+            const commitInputs = Array.from({ length: commitPsbt.inputCount }, (_, i) => i);
+            const revealPsbtHex = buildRevealPsbt(tmpData).toHex();
+
+            const hexes = await walletProvider.signPsbts([
+                {
+                    hex: commitPsbtHex,
+                    signInputs: { [address]: commitInputs },
+                    sighashTypes: commitInputs.map(() => 0x01)
+                },
+                {
+                    hex: revealPsbtHex,
+                    signInputs: { [address]: [0] },
+                    sighashTypes: [0x00],
+                    intent: { standard: 'counterparty-reveal', version: 1, action: 'sign_reveal' }
+                }
+            ]);
+
+            const signedCommit = bitcoin.Psbt.fromHex(hexes[0]);
+            signedCommit.finalizeAllInputs();
+            const signedReveal = bitcoin.Psbt.fromHex(hexes[1]);
+            signedReveal.finalizeAllInputs();
+
+            const signedCommitHex = signedCommit.extractTransaction().toHex();
+            const signedRevealHex = signedReveal.extractTransaction().toHex();
+            // attach both signed txs so the downloaded JSON can be rebroadcast as-is
+            tmpData.signed_commit_rawtransaction = signedCommitHex;
+            tmpData.signed_reveal_rawtransaction = signedRevealHex;
+
+            // Pause so the user can save the signed reveal before we broadcast the commit.
+            showRevealDownloadModal(tmpData, signedRevealHex, async ()=>{
+                const commitTxid = await walletProvider.broadcastTx(signedCommitHex);
+                window.showToast(`Transaction successful!`, 'success',
+                    { href: `https://mempool.space/tx/${commitTxid}`, text: 'View on Mempool.space' });
+
+                window.showToast(`Broadcasting taproot reveal tx...`, 'Info');
+                setTimeout(async () => {
+                    try{
+                        const revealTxid = await broadcastRawTx(signedRevealHex);
+                        window.showToast(`Reveal Transaction successful!`, 'success',
+                            { href: `https://mempool.space/tx/${revealTxid}`, text: 'View on Mempool.space' });
+                    }
+                    catch(e){
+                        console.log("Error broadcasting reveal", e);
+                        window.showToast(`Reveal Transaction failed! ${e} Your signed reveal is saved in the downloaded JSON - you can rebroadcast it manually.`, 'error');
+                    }
+                }, 5000);
+            }, "Broadcast Transactions");
+        }
+
         // Sign & broadcast the commit tx, then (for taproot) broadcast the reveal.
         // Split out of beginSignAndBroadcast so the taproot flow can pause on the
         // "save your signed reveal" modal before the commit is signed.
@@ -151,29 +186,9 @@ import Buffer from "./buffer.min.js"
                 }
                 let result;
                 if(walletProvider.walletName === "xcpwallet"){
-                    if(isTaprootTx){
-                        // The taproot commit tx is a plain BTC payment with no Counterparty data, which
-                        // XCP refuses through xcp_signTransaction - sign it with xcp_signBitcoinPsbt instead.
-                        let finalPsbt = window.rawHexToPsbt(tmpData.rawtransaction, walletProvider.walletAddress, tmpData.inputs_values, null);
-                        // collect the external outputs (everything that is not change back to the signer)
-                        let outputs = [];
-                        let tx = bitcoin.Transaction.fromHex(tmpData.rawtransaction);
-                        for(const out of tx.outs){
-                            let address = null;
-                            try{ address = bitcoin.address.fromOutputScript(out.script, bitcoin.networks.bitcoin); }catch(e){}
-                            if(address === walletProvider.walletAddress) continue; // change - excluded
-                            if(address) outputs.push({ address, amountSats: out.value });
-                        }
-                        let signedPSBT = await walletProvider.signBitcoinPaymentPSBT(finalPsbt, walletProvider.walletAddress, outputs);
-                        let signedPsbt = bitcoin.Psbt.fromHex(signedPSBT);
-                        signedPsbt.finalizeAllInputs();
-                        result = await walletProvider.broadcastTx(signedPsbt.extractTransaction().toHex());
-                    }
-                    else{
-                        // XCP Wallet signs the raw counterparty tx directly (it resolves prevouts itself)
-                        let signedResult = await walletProvider.signRawTransaction(tmpData.rawtransaction);
-                        result = await walletProvider.broadcastTx(signedResult.hex);
-                    }
+                    // XCP Wallet signs the raw counterparty tx directly (it resolves prevouts itself)
+                    let signedResult = await walletProvider.signRawTransaction(tmpData.rawtransaction);
+                    result = await walletProvider.broadcastTx(signedResult.hex);
                 }
                 else{
                     let finalPsbt;
@@ -250,7 +265,7 @@ import Buffer from "./buffer.min.js"
         // After the reveal is signed, make the user save the file before we sign the
         // commit. The Continue click also restores the user-activation the commit
         // wallet popup needs (the reveal popup consumed it).
-        function showRevealDownloadModal(tmpData, signedRevealHex){
+        function showRevealDownloadModal(tmpData, signedRevealHex, onContinue, confirmLabel){
             const filename = "counterparty-taproot-tx-" + Date.now() + ".json";
             generalModal.open(`
                 <div class="space-y-4">
@@ -270,9 +285,14 @@ import Buffer from "./buffer.min.js"
                         <span>I have downloaded and saved the file</span>
                     </label>
                 </div>
-            `, "Save Your Signed Reveal", "Sign Commit Transaction", async ()=>{
+            `, "Save Your Signed Reveal", confirmLabel || "Sign Commit Transaction", async ()=>{
                 generalModal.close();
-                await signAndBroadcastCommit(tmpData, true, signedRevealHex);
+                if(onContinue){
+                    await onContinue();
+                }
+                else{
+                    await signAndBroadcastCommit(tmpData, true, signedRevealHex);
+                }
             });
 
             const downloadBtn = document.getElementById('taproot-download-btn');
@@ -317,6 +337,13 @@ import Buffer from "./buffer.min.js"
 
                 }
                 else{
+                    // XCP Wallet taproot: one approval signs both the commit and the
+                    // reveal via the provider's commit-and-reveal bundle.
+                    if(walletProvider.walletName === "xcpwallet" && isTaprootTx){
+                        await signAndBroadcastTaprootXcp(tmpData);
+                        return;
+                    }
+
                     // For taproot, sign the reveal FIRST. If reveal signing fails we abort
                     // before broadcasting the commit, so no BTC is stranded at the reveal
                     // address. The commit txid is stable regardless of signing, so the
